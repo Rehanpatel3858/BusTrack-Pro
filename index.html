@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusTrack MB Pro | Fleet Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css"/>
+    <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
+    <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/services/services-web.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-ui" style="display:none;"></div>
+    
+    <!-- Custom Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <h3 class="modal-title">Confirm Reset</h3>
+            <p class="modal-message" id="modal-message">Are you sure you want to reset this bus?</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="executeReset()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen" class="login-page">
+        <!-- Realistic Bus Animation - Behind Portal -->
+        <div class="bus-track">
+            <div class="school-bus">🚌</div>
+            <div class="school-bus">🚌</div>
+        </div>
+        
+        <div class="login-card-v3">
+            <h1 class="brand-v3">BusTrack<span>Pro</span></h1>
+            <p class="brand-sub-v3">Mira Bhayandar Fleet Command</p>
+            
+            <div id="role-selection-v3">
+                <p class="section-tag">Choose Workspace</p>
+                <div class="role-grid">
+                    <button class="role-pills-v3" onclick="setTempRole('parent')">Parent Portal</button>
+                    <button class="role-pills-v3" onclick="setTempRole('driver')">Driver Terminal</button>
+                    <button class="role-pills-v3" onclick="setTempRole('admin')">Admin Center</button>
+                </div>
+            </div>
+
+            <div id="auth-form-v3" style="display:none;">
+                <input type="text" id="username" class="modern-input-v3" placeholder="Enter ID" onkeyup="if(event.key==='Enter') processLogin()">
+                <input type="password" id="password" class="modern-input-v3" placeholder="Password" onkeyup="if(event.key==='Enter') processLogin()">
+                <button class="btn-primary-v3" onclick="processLogin()">Secure Log In</button>
+                <button class="btn-back-link" onclick="resetLogin()">Change Role</button>
+            </div>
+        </div>
+        <div class="legal-foot">© 2026 MB Fleet Systems India</div>
+    </div>
+
+    <div id="app-container" style="display:none;">
+        <nav class="pro-navbar">
+            <div class="pro-brand">🚍 BusTrack Pro <span id="role-label" class="badge-v3"></span></div>
+            <div class="nav-btn-group">
+                <button onclick="switchRole()" class="nav-btn-v3">🔄 Switch</button>
+                <button onclick="logout()" class="nav-btn-v3 nav-btn-red">Logout</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-wrapper">
+            <aside class="pro-sidebar">
+                <div class="sidebar-group">
+                    <p class="sidebar-tag">FLEET LIST</p>
+                    <div class="fleet-list">
+                        <div class="fleet-item">
+                            <div class="chip active" onclick="changeBus('bus01')">B-01</div>
+                            <button class="btn-reset-bus" onclick="event.stopPropagation(); resetBus('bus01')" title="Reset Bus B-01">↺</button>
+                        </div>
+                        <div class="fleet-item">
+                            <div class="chip" onclick="changeBus('bus02')">B-02</div>
+                            <button class="btn-reset-bus" onclick="event.stopPropagation(); resetBus('bus02')" title="Reset Bus B-02">↺</button>
+                        </div>
+                        <div class="fleet-item">
+                            <div class="chip" onclick="changeBus('bus03')">B-03</div>
+                            <button class="btn-reset-bus" onclick="event.stopPropagation(); resetBus('bus03')" title="Reset Bus B-03">↺</button>
+                        </div>
+                        <div class="fleet-item">
+                            <div class="chip" onclick="changeBus('bus04')">B-04</div>
+                            <button class="btn-reset-bus" onclick="event.stopPropagation(); resetBus('bus04')" title="Reset Bus B-04">↺</button>
+                        </div>
+                        <div class="fleet-item">
+                            <div class="chip" onclick="changeBus('bus05')">B-05</div>
+                            <button class="btn-reset-bus" onclick="event.stopPropagation(); resetBus('bus05')" title="Reset Bus B-05">↺</button>
+                        </div>
+                        <div class="fleet-item">
+                            <div class="chip" onclick="changeBus('bus06')">B-06</div>
+                            <button class="btn-reset-bus" onclick="event.stopPropagation(); resetBus('bus06')" title="Reset Bus B-06">↺</button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="sidebar-hr">
+
+                <div id="driver-portal" class="sidebar-card-v3" style="display:none;">
+                    <p class="sidebar-tag">Trip Configuration</p>
+                    <input type="text" id="search-src" class="side-input-v3" placeholder="Current Location" onkeyup="if(event.key==='Enter') searchAndMove('current')">
+                    <input type="text" id="search-dest" class="side-input-v3" placeholder="School/Station Destination" onkeyup="if(event.key==='Enter') searchAndMove('destination')">
+                    
+                    <div id="driver-eta-box" class="eta-pill-v3" style="display:none;">
+                        Bus <span id="d-bus-id"></span>: <span id="d-eta-text">--</span> mins
+                    </div>
+                    <button class="btn-publish-v3" onclick="publishTrip()">🚀 PUBLISH TRACKING</button>
+                </div>
+
+                <div id="monitor-portal" style="display:none;">
+                    <div class="glass-monitor-card">
+                        <div id="m-bus-id" class="m-title">VEHICLE: BUS 01</div>
+                        <div class="m-details">
+                            <p id="m-from">From: --</p>
+                            <p id="m-to">To: --</p>
+                        </div>
+                        <div class="m-eta-hero"><span id="m-eta">--</span> <small>mins</small></div>
+                        <div class="pro-progress-bar">
+                            <div id="m-progress" class="pro-progress-fill" style="width: 0%"></div>
+                            <span id="m-bus-icon" class="pro-bus-icon">🚌</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="pro-map-view">
+                <div id="map"></div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

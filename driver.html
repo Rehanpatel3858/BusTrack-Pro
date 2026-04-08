@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Portal - BusTrack MB</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Driver-specific styles */
+        .driver-body {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Login Screen */
+        .driver-login-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .driver-brand {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .driver-brand-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .driver-brand-icon i {
+            font-size: 36px;
+            color: white;
+        }
+
+        .driver-brand h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .driver-brand p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .driver-login-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .driver-login-card h2 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .driver-input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .driver-input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .driver-input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        .driver-input::placeholder {
+            color: #64748b;
+        }
+
+        .driver-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .driver-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .driver-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Dashboard */
+        .driver-dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .driver-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .driver-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .driver-avatar {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .driver-avatar i {
+            font-size: 1.3rem;
+            color: #d97706;
+        }
+
+        .driver-name {
+            color: white;
+        }
+
+        .driver-name h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .driver-name span {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .driver-logout {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .driver-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .bus-info-bar {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bus-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+
+        .bus-info-item i {
+            font-size: 1rem;
+        }
+
+        .bus-info-item span {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .status-badge.offline {
+            background: #ef4444;
+        }
+
+        /* Main Content */
+        .driver-content {
+            padding: 20px;
+        }
+
+        /* Route Card */
+        .route-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .route-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .route-header h3 i {
+            color: #f59e0b;
+        }
+
+        .route-progress {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .route-stops {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .stop-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stop-item:last-child {
+            border-bottom: none;
+        }
+
+        .stop-marker {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .stop-marker.completed {
+            background: #10b981;
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .stop-marker.current {
+            background: #f59e0b;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .stop-marker.pending {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #475569;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+
+        .stop-details {
+            flex: 1;
+        }
+
+        .stop-name {
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .stop-time {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+
+        .stop-item.current .stop-name {
+            color: #f59e0b;
+        }
+
+        /* Action Buttons */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .action-btn span {
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+        }
+
+        .action-btn.primary:hover {
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+        }
+
+        .action-btn.danger:hover {
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Stats Card */
+        .stats-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .stats-header {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-label {
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-label i {
+            color: #f59e0b;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #475569;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: #10b981;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="driver-body">
+    <!-- Login Screen -->
+    <div class="driver-login-container" id="driver-login">
+        <div class="driver-brand">
+            <div class="driver-brand-icon">
+                <i class="fas fa-bus"></i>
+            </div>
+            <h1>BusTrack MB</h1>
+            <p>Driver Portal</p>
+        </div>
+
+        <div class="driver-login-card">
+            <h2>Driver Login</h2>
+            <div class="driver-input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" class="driver-input" id="dUser" placeholder="Driver ID">
+            </div>
+            <div class="driver-input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" class="driver-input" id="dPass" placeholder="Password">
+            </div>
+            <button class="driver-btn" onclick="driverLogin()">
+                <i class="fas fa-sign-in-alt"></i> Start Shift
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="driver-dashboard" id="driver-dashboard">
+        <header class="driver-header">
+            <div class="driver-header-top">
+                <div class="driver-info">
+                    <div class="driver-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="driver-name">
+                        <h3>John Smith</h3>
+                        <span>Driver ID: DRV-001</span>
+                    </div>
+                </div>
+                <button class="driver-logout" onclick="driverLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <div class="bus-info-bar">
+                <div class="bus-info-item">
+                    <i class="fas fa-bus"></i>
+                    <span>Bus MB-01</span>
+                </div>
+                <div class="bus-info-item">
+                    <i class="fas fa-route"></i>
+                    <span>Route A</span>
+                </div>
+                <span class="status-badge" id="online-status">Online</span>
+            </div>
+        </header>
+
+        <main class="driver-content">
+            <!-- Online Toggle -->
+            <div class="toggle-container">
+                <div class="toggle-label">
+                    <i class="fas fa-satellite-dish"></i>
+                    GPS Tracking
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked onchange="toggleGPS(this)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="action-grid">
+                <div class="action-btn primary" onclick="markArrival()">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Mark Arrival</span>
+                </div>
+                <div class="action-btn" onclick="sendAlert()">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Send Alert</span>
+                </div>
+                <div class="action-btn" onclick="viewMap()">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>View Map</span>
+                </div>
+                <div class="action-btn danger" onclick="emergency()">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>Emergency</span>
+                </div>
+            </div>
+
+            <!-- Route Progress -->
+            <div class="route-card">
+                <div class="route-header">
+                    <h3><i class="fas fa-map-marker-alt"></i> Today's Route</h3>
+                    <span class="route-progress">3 of 8 stops</span>
+                </div>
+                <div class="route-stops">
+                    <div class="stop-item">
+                        <div class="stop-marker completed">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="stop-details">
+                            <div class="stop-name">School Main Gate</div>
+                            <div class="stop-time">7:00 AM - Departed</div>
+                        </div>
+                    </div>
+                    <div class="stop-item">
+                        <div class="stop-marker completed">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="stop-details">
+                            <div class="stop-name">Oak Street</div>
+                            <div class="stop-time">7:15 AM - Completed</div>
+                        </div>
+                    </div>
+                    <div class="stop-item current">
+                        <div class="stop-marker current">
+                            <i class="fas fa-bus"></i>
+                        </div>
+                        <div class="stop-details">
+                            <div class="stop-name">Maple Avenue</div>
+                            <div class="stop-time">Arriving soon...</div>
+                        </div>
+                    </div>
+                    <div class="stop-item">
+                        <div class="stop-marker pending"></div>
+                        <div class="stop-details">
+                            <div class="stop-name">Pine Road</div>
+                            <div class="stop-time">Est. 7:35 AM</div>
+                        </div>
+                    </div>
+                    <div class="stop-item">
+                        <div class="stop-marker pending"></div>
+                        <div class="stop-details">
+                            <div class="stop-name">Cedar Lane</div>
+                            <div class="stop-time">Est. 7:45 AM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-card">
+                <div class="stats-header">Shift Statistics</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Students</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Stops</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">45m</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function driverLogin() {
+            const user = document.getElementById('dUser').value;
+            const pass = document.getElementById('dPass').value;
+            
+            if (user === "driver" && pass === "driver123") {
+                document.getElementById('driver-login').style.display = 'none';
+                document.getElementById('driver-dashboard').style.display = 'block';
+            } else {
+                alert("Invalid credentials. Try driver / driver123");
+            }
+        }
+
+        function driverLogout() {
+            if (confirm("End your shift and logout?")) {
+                document.getElementById('driver-dashboard').style.display = 'none';
+                document.getElementById('driver-login').style.display = 'flex';
+                document.getElementById('dUser').value = '';
+                document.getElementById('dPass').value = '';
+            }
+        }
+
+        function toggleGPS(checkbox) {
+            const status = document.getElementById('online-status');
+            if (checkbox.checked) {
+                status.textContent = 'Online';
+                status.classList.remove('offline');
+            } else {
+                status.textContent = 'Offline';
+                status.classList.add('offline');
+            }
+        }
+
+        function markArrival() {
+            alert("Arrival marked! Parents have been notified.");
+        }
+
+        function sendAlert() {
+            const reason = prompt("Enter alert reason (delay/traffic/etc):");
+            if (reason) {
+                alert("Alert sent to admin: " + reason);
+            }
+        }
+
+        function viewMap() {
+            window.open('test_map.html', '_blank');
+        }
+
+        function emergency() {
+            if (confirm("Call Emergency Hotline?")) {
+                alert("Connecting to emergency services...");
+            }
+        }
+    </script>
+</body>
+</html>

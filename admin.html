@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Portal - BusTrack MB</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card login-card" id="admin-login">
+        <h2>School Admin</h2>
+        <input type="text" id="aUser" placeholder="Admin Username">
+        <input type="password" id="aPass" placeholder="Password">
+        <button class="btn btn-success" onclick="adminLogin()">Login</button>
+    </div>
+
+    <div id="admin-panel" style="display:none;" class="card" style="max-width:800px;">
+        <h2>Fleet Status</h2>
+        <table>
+            <tr><th>Bus</th><th>Status</th></tr>
+            <tr><td>MB-01</td><td><span style="color:green">Active</span></td></tr>
+        </table>
+    </div>
+
+    <script>
+        function adminLogin() {
+            if (document.getElementById('aUser').value === "admin" && 
+                document.getElementById('aPass').value === "schooladmin789") {
+                document.getElementById('admin-login').style.display = "none";
+                document.getElementById('admin-panel').style.display = "block";
+            } else { alert("Access Denied"); }
+        }
+    </script>
+</body>
+</html>
