@@ -82,23 +82,9 @@
                 </div>
             </div>
             <div class="nav-btn-group">
-<<<<<<< HEAD
                 <div id="sync-status" class="sync-status-indicator" style="display:none;">
                     <span class="sync-dot"></span>
                     <span class="sync-text">Sync Paused</span>
-=======
-                <div class="notification-wrapper">
-                    <button class="nav-btn-v3" onclick="toggleNotifications()">🔔 <span class="badge" id="notif-badge">3</span></button>
-                    <div id="notification-panel" class="notification-panel">
-                        <div class="notif-header">
-                            <h4>Notifications</h4>
-                            <button onclick="clearNotifications()" class="clear-btn">Clear All</button>
-                        </div>
-                        <div class="notif-list" id="notif-list">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
->>>>>>> b4cec91c3737667a7ba67973a7437e4e345308bb
                 </div>
                 <button onclick="switchRole()" class="nav-btn-v3">🔄 Switch</button>
                 <button onclick="logout()" class="nav-btn-v3 nav-btn-red">Logout</button>
@@ -140,10 +126,15 @@
                 <hr class="sidebar-hr">
 
                 <div id="driver-portal" class="sidebar-card-v3" style="display:none;">
-<<<<<<< HEAD
-                    <p class="sidebar-tag">Trip Configuration</p>
-                    <input type="text" id="search-src" class="side-input-v3" placeholder="Current Location" autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('current')">
-                    <input type="text" id="search-dest" class="side-input-v3" placeholder="School/Station Destination" autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('destination')">
+                    <div class="card-header">
+                        <p class="sidebar-tag">Trip Configuration</p>
+                        <div class="status-indicator live">● LIVE</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Current Location</label>
+                        <input type="text" id="search-src" class="side-input-v3" placeholder="Search location..." autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('current')">
+                    </div>
                     
                     <!-- GPS Location Button -->
                     <button class="btn-gps-location" onclick="getUserLocation()" title="Use My Current Location">
@@ -151,23 +142,9 @@
                         <span class="gps-text">Use My Location</span>
                     </button>
                     
-                    <div id="driver-eta-box" class="eta-pill-v3" style="display:none;">
-                        Bus <span id="d-bus-id"></span>: <span id="d-eta-text">--</span> mins
-=======
-                    <div class="card-header">
-                        <p class="sidebar-tag">Trip Configuration</p>
-                        <div class="status-indicator live">● LIVE</div>
->>>>>>> b4cec91c3737667a7ba67973a7437e4e345308bb
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Current Location</label>
-                        <input type="text" id="search-src" class="side-input-v3" placeholder="Search location..." onkeyup="if(event.key==='Enter') searchAndMove('current')">
-                    </div>
-                    
                     <div class="input-group">
                         <label class="input-label">Destination</label>
-                        <input type="text" id="search-dest" class="side-input-v3" placeholder="Search destination..." onkeyup="if(event.key==='Enter') searchAndMove('destination')">
+                        <input type="text" id="search-dest" class="side-input-v3" placeholder="Search destination..." autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('destination')">
                     </div>
                     
                     <div id="driver-eta-box" class="eta-hero-card" style="display:none;">
