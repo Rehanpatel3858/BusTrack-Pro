@@ -3,23 +3,24 @@
 <cite>
 **Referenced Files in This Document**
 - [script.js](file://script.js)
+- [script-fix.js](file://script-fix.js)
 - [index.html](file://index.html)
 - [style.css](file://style.css)
 - [admin.html](file://admin.html)
 - [driver.html](file://driver.html)
-- [test_map.html](file://test_map.html)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Added comprehensive centralized state management system with AppState singleton
-- Implemented cross-tab notification synchronization using localStorage events
-- Enhanced role-based filtering capabilities with canViewBus() and shouldShowNotification() methods
-- Introduced expandable bus cards with detailed information panels
-- Added resizable sidebar functionality for improved user experience
-- Implemented real-time notification system with journey tracking
-- Enhanced fleet data management with localStorage persistence and single source of truth
-- Added journey simulation system for demonstration purposes
+- Enhanced centralized state management system with comprehensive global function export mechanism
+- Implemented improved function accessibility for inline event handlers through window object exports
+- Fixed critical "setTempRole is not defined" error with dedicated script-fix.js utility
+- Expanded global function export coverage to include all application functions for HTML inline event handlers
+- Strengthened role-based filtering capabilities with enhanced permission validation
+- Improved cross-tab synchronization with atomic state updates and conflict prevention
+- Enhanced bus tracking system with real-time location updates and progress visualization
+- Refined fleet data structure with localStorage persistence and single source of truth
+- Optimized UI components with responsive design and dynamic content updates
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -27,14 +28,15 @@
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
 5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
+6. [Global Function Export System](#global-function-export-system)
+7. [Dependency Analysis](#dependency-analysis)
+8. [Performance Considerations](#performance-considerations)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Conclusion](#conclusion)
+11. [Appendices](#appendices)
 
 ## Introduction
-This document explains the fleet management and monitoring capabilities implemented in the BusTrack Pro system. The system has evolved to include a centralized state management system, cross-tab notification synchronization, role-based filtering, expandable bus cards with detailed information panels, and enhanced fleet data management with localStorage persistence. It covers real-time bus tracking, progress visualization, ETA calculations, the fleet data model persisted in localStorage, role-specific views (admin, driver, parent), bus selection mechanisms, chip-based UI components, dynamic content updates, progress bar visualization, bus position animation, reset functionality, and the synchronization system designed to prevent conflicts during user interactions.
+This document explains the fleet management and monitoring capabilities implemented in the BusTrack Pro system. The system has evolved to include a centralized state management system with comprehensive global function export mechanism, cross-tab notification synchronization, role-based filtering, expandable bus cards with detailed information panels, and enhanced fleet data management with localStorage persistence. It covers real-time bus tracking, progress visualization, ETA calculations, the fleet data model persisted in localStorage, role-specific views (admin, driver, parent), bus selection mechanisms, chip-based UI components, dynamic content updates, progress bar visualization, bus position animation, reset functionality, and the synchronization system designed to prevent conflicts during user interactions.
 
 ## Project Structure
 The application consists of:
@@ -42,8 +44,8 @@ The application consists of:
 - A TomTom-powered map for route visualization with enhanced routing capabilities
 - A localStorage-backed fleet data store with single source of truth
 - Role-specific HTML pages for admin and driver with enhanced UI components
-- A lightweight test map page for environment verification
-- Real-time notification system with cross-tab synchronization
+- A global function export system ensuring all application functions are accessible to HTML inline event handlers
+- A dedicated script-fix.js utility for critical function accessibility
 
 ```mermaid
 graph TB
@@ -52,30 +54,32 @@ A --> C["style.css<br/>Enhanced UI Styles"]
 B --> D["TomTom Maps SDK<br/>Advanced Routing & Rendering"]
 B --> E["localStorage<br/>fleet_data & journey_state"]
 F["admin.html<br/>Admin Portal"] --> G["driver.html<br/>Driver Portal"]
-H["test_map.html<br/>Map Test Page"] --> D
+H["script-fix.js<br/>Global Function Export"] --> B
 I["AppState<br/>Centralized State"] --> E
 J["Notification System<br/>Cross-tab Sync"] --> E
 K["Expandable Bus Cards<br/>Detailed Panels"] --> A
+L["Global Functions<br/>Inline Handler Access"] --> A
 ```
 
 **Diagram sources**
-- [index.html:14-238](file://index.html#L14-L238)
+- [index.html:14-240](file://index.html#L14-L240)
 - [script.js:45-136](file://script.js#L45-L136)
 - [style.css:1-2440](file://style.css#L1-L2440)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
-- [test_map.html:1-51](file://test_map.html#L1-L51)
+- [script-fix.js:1-45](file://script-fix.js#L1-L45)
 
 **Section sources**
-- [index.html:14-238](file://index.html#L14-L238)
+- [index.html:14-240](file://index.html#L14-L240)
 - [script.js:45-136](file://script.js#L45-L136)
 - [style.css:1-2440](file://style.css#L1-L2440)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
-- [test_map.html:1-51](file://test_map.html#L1-L51)
+- [script-fix.js:1-45](file://script-fix.js#L1-L45)
 
 ## Core Components
 - **Centralized State Management**: AppState singleton providing single source of truth for all fleet data and user state
+- **Comprehensive Global Function Export**: Complete function accessibility for HTML inline event handlers through window object exports
 - **Cross-tab Notification Synchronization**: Real-time notification updates across multiple browser tabs using localStorage events
 - **Enhanced Role-based Filtering**: Advanced filtering system with canViewBus() and shouldShowNotification() methods
 - **Expandable Bus Cards**: Interactive bus cards with detailed information panels and expand/collapse functionality
@@ -91,31 +95,35 @@ K["Expandable Bus Cards<br/>Detailed Panels"] --> A
 - [script.js:138-231](file://script.js#L138-L231)
 - [script.js:1677-1814](file://script.js#L1677-L1814)
 - [script.js:1816-1875](file://script.js#L1816-L1875)
+- [script-fix.js:36-45](file://script-fix.js#L36-L45)
 
 ## Architecture Overview
-The system follows a modernized modular client-side architecture with centralized state management:
+The system follows a modernized modular client-side architecture with centralized state management and comprehensive function accessibility:
 - index.html hosts the main dashboard with role selection, navigation, and enhanced UI components
 - script.js orchestrates centralized state management, authentication, fleet data, map rendering, UI updates, and synchronization
 - style.css defines the enhanced glassmorphic UI, animations, and responsive design
 - admin.html and driver.html provide role-specific portals with improved functionality
-- test_map.html validates map availability and serves as a development tool
+- script-fix.js ensures critical functions like setTempRole are globally accessible for inline event handlers
 
 ```mermaid
 sequenceDiagram
 participant U as "User"
 participant IDX as "index.html"
+participant SF as "script-fix.js"
 participant AS as "AppState"
 participant JS as "script.js"
 participant MAP as "TomTom Maps"
 participant LS as "localStorage"
-U->>IDX : Select role and log in
-IDX->>JS : processLogin()
+U->>IDX : Select role and click button
+IDX->>SF : setTempRole(role) via inline onclick
+SF->>SF : Validate role and redirect
+SF->>JS : window.setTempRole accessible
 JS->>AS : init() - Initialize centralized state
 AS->>LS : Load fleet_data & journey_state
 AS->>AS : getUserAssignedBus()
 AS->>IDX : render role-specific portal
 U->>IDX : select bus (expandable chip)
-IDX->>JS : selectBusCard(id)
+IDX->>JS : changeBus(id) via window function
 JS->>AS : canViewBus(busId)
 AS->>AS : Update activeBusId
 AS->>JS : changeBus(id)
@@ -134,7 +142,8 @@ JS->>IDX : Update notification panel
 ```
 
 **Diagram sources**
-- [index.html:42-72](file://index.html#L42-L72)
+- [index.html:47-53](file://index.html#L47-L53)
+- [script-fix.js:22-34](file://script-fix.js#L22-L34)
 - [script.js:303-349](file://script.js#L303-L349)
 - [script.js:334-342](file://script.js#L334-L342)
 - [script.js:571-597](file://script.js#L571-L597)
@@ -165,6 +174,32 @@ Key methods and properties:
 - [script.js:45-136](file://script.js#L45-L136)
 - [script.js:266-294](file://script.js#L266-L294)
 - [script.js:1093-1167](file://script.js#L1093-L1167)
+
+### Comprehensive Global Function Export System
+**Updated** Enhanced function accessibility for HTML inline event handlers through systematic window object exports:
+
+The system now provides complete function accessibility for inline event handlers:
+- **Critical Function Fix**: script-fix.js resolves "setTempRole is not defined" error
+- **Complete Function Export**: All application functions exported to global scope
+- **Inline Handler Compatibility**: Functions accessible via window.functionName() calls
+- **Role-based Navigation**: setTempRole redirects to appropriate portal pages
+- **Authentication Functions**: processLogin, resetLogin, switchRole, logout exported
+- **UI Control Functions**: changeBus, resetBus, showResetConfirm, closeConfirmModal exported
+- **Map and Navigation Functions**: searchAndMove, getUserLocation, publishTrip exported
+- **Map Controls**: mapZoomIn, mapZoomOut, mapFitAll exported
+- **Driver Portal Functions**: toggleGPS, markArrival, sendAlert, viewMap, emergency conditionally exported
+
+Export mechanism:
+- `window.setTempRole = setTempRole` - Role selection function
+- `window.processLogin = processLogin` - Authentication handler
+- `window.changeBus = changeBus` - Bus selection function
+- `window.searchAndMove = searchAndMove` - Location search and movement
+- `window.publishTrip = publishTrip` - Trip publishing function
+- Conditional exports for driver portal functions with fallbacks
+
+**Section sources**
+- [script-fix.js:1-45](file://script-fix.js#L1-L45)
+- [script.js:2122-2146](file://script.js#L2122-L2146)
 
 ### Cross-tab Notification Synchronization
 The system implements real-time notification synchronization across multiple browser tabs:
@@ -379,7 +414,7 @@ Progress features:
 - `syncData()`: Updates progress bars and bus positions
 - `formatBusID()`: Enhanced bus ID formatting for display
 - `updateBusDisplayText()`: Dynamic bus ID display updates
-- `Math.min/max(100, Math.max(0, 100 - (busData.eta * 2.5)))`: Accurate percentage calculation
+- `Math.min(max(100, Math.max(0, 100 - (busData.eta * 2.5))))`: Accurate percentage calculation
 
 **Section sources**
 - [script.js:1070-1140](file://script.js#L1070-L1140)
@@ -447,6 +482,42 @@ Data structure examples:
 - [script.js:254-264](file://script.js#L254-L264)
 - [script.js:97-122](file://script.js#L97-L122)
 - [script.js:131-136](file://script.js#L131-L136)
+
+## Global Function Export System
+**New Section** The system now includes a comprehensive global function export mechanism ensuring all application functions are accessible to HTML inline event handlers:
+
+### Critical Function Accessibility
+The script-fix.js utility addresses the fundamental issue of function accessibility:
+- **setTempRole Resolution**: Fixes "Uncaught ReferenceError: setTempRole is not defined"
+- **Role-based Redirection**: Handles parent, driver, and admin portal navigation
+- **Global Scope Export**: Makes setTempRole available via window.setTempRole
+- **Inline Handler Compatibility**: Enables direct onclick="setTempRole('admin')" usage
+
+### Complete Function Export Coverage
+The system exports all essential functions to the global scope:
+- **Authentication Functions**: processLogin, resetLogin, switchRole, logout
+- **Bus Management**: changeBus, resetBus, showResetConfirm, closeConfirmModal, executeReset
+- **Map Operations**: searchAndMove, getUserLocation, publishTrip
+- **Map Controls**: mapZoomIn, mapZoomOut, mapFitAll
+- **Driver Portal Functions**: toggleGPS, markArrival, sendAlert, viewMap, emergency (with fallbacks)
+- **Utility Functions**: formatBusID, showToast, applyRoleTheme, updateAdminStats
+
+### Inline Event Handler Compatibility
+All exported functions support direct inline event handler usage:
+- **onclick handlers**: `onclick="changeBus('bus01')"`
+- **onchange handlers**: `onchange="toggleGPS(this)"`
+- **onsubmit handlers**: `onsubmit="processLogin()"`
+- **Event delegation**: Functions accessible through window object reference
+
+### Conditional Function Export
+Driver portal functions are conditionally exported with fallbacks:
+- Functions that may not exist in main script are wrapped with typeof checks
+- Fallback empty functions ensure no ReferenceErrors in console
+- Maintains compatibility across different portal contexts
+
+**Section sources**
+- [script-fix.js:1-45](file://script-fix.js#L1-L45)
+- [script.js:2122-2146](file://script.js#L2122-L2146)
 
 ## Architecture Overview
 
@@ -516,12 +587,22 @@ class JourneySimulation {
 +triggerReachedStop(busId, stopName)
 +triggerSmartArrivalAlert(busId, minutesAway)
 }
+class GlobalFunctionExport {
++window.setTempRole
++window.processLogin
++window.changeBus
++window.searchAndMove
++window.publishTrip
++window.mapControls
++conditionalExports
+}
 AppState --> FleetData : "manages"
 AppState --> NotificationSystem : "integrates"
 AppState --> JourneySimulation : "controls"
 UI --> AppState : "reads/writes"
 MapIntegration --> AppState : "updates coordinates/ETA"
 Sync --> AppState : "prevents conflicts"
+GlobalFunctionExport --> UI : "enables inline handlers"
 ```
 
 **Diagram sources**
@@ -532,6 +613,7 @@ Sync --> AppState : "prevents conflicts"
 - [script.js:1071-1140](file://script.js#L1071-L1140)
 - [script.js:1677-1711](file://script.js#L1677-L1711)
 - [script.js:1816-1875](file://script.js#L1816-L1875)
+- [script.js:2122-2146](file://script.js#L2122-L2146)
 
 ## Detailed Component Analysis
 
@@ -620,8 +702,10 @@ Enhanced dependency structure with centralized state management:
   - localStorage for centralized fleet_data and journey_state persistence
   - DOM elements defined in index.html for UI updates
   - Centralized AppState for single source of truth
+  - script-fix.js for critical function accessibility
 - **index.html** depends on:
   - script.js for enhanced logic and state management
+  - script-fix.js for global function exports
   - style.css for enhanced styling and responsive design
 - **admin.html** and **driver.html** provide role-specific UIs with improved functionality
 - **Cross-tab Dependencies**: Enhanced cross-tab communication via localStorage events
@@ -632,27 +716,32 @@ JS["script.js"] --> TT["TomTom SDK"]
 JS --> LS["localStorage"]
 JS --> DOM["index.html DOM"]
 JS --> AS["AppState"]
+JS --> SF["script-fix.js"]
 AS --> LS
 IDX["index.html"] --> CSS["style.css"]
+IDX --> SF
 ADM["admin.html"] --> JS
 DRV["driver.html"] --> JS
 CT["Cross-tab Sync"] --> LS
 NS["Notification System"] --> LS
+GF["Global Functions"] --> DOM
 ```
 
 **Diagram sources**
 - [script.js:1-12](file://script.js#L1-L12)
-- [index.html:12-238](file://index.html#L12-L238)
+- [index.html:12-240](file://index.html#L12-L240)
 - [style.css:1-2440](file://style.css#L1-L2440)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
+- [script-fix.js:1-45](file://script-fix.js#L1-L45)
 
 **Section sources**
 - [script.js:1-12](file://script.js#L1-L12)
-- [index.html:12-238](file://index.html#L12-L238)
+- [index.html:12-240](file://index.html#L12-L240)
 - [style.css:1-2440](file://style.css#L1-L2440)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
+- [script-fix.js:1-45](file://script-fix.js#L1-L45)
 
 ## Performance Considerations
 Enhanced performance optimizations with centralized state management:
@@ -664,6 +753,7 @@ Enhanced performance optimizations with centralized state management:
 - **Periodic Sync**: Runs every 5 seconds to balance freshness and performance
 - **Memory Management**: Proper cleanup of intervals and event listeners
 - **DOM Optimization**: Minimized DOM manipulation through centralized state updates
+- **Global Function Caching**: Window object exports reduce function lookup overhead
 
 ## Troubleshooting Guide
 Enhanced troubleshooting with centralized state management:
@@ -674,15 +764,18 @@ Enhanced troubleshooting with centralized state management:
 - **Cross-tab Updates Not Working**: Verify localStorage event listener is active and AppState.sync() is called
 - **Notification Filtering Issues**: Check shouldShowNotification() logic for user assignment validation
 - **Journey Simulation Problems**: Ensure startJourneySimulation() is called with valid busId and proper interval management
+- **Inline Handler Errors**: Verify functions are exported to window object; check console for ReferenceErrors
+- **setTempRole Not Defined**: Ensure script-fix.js loads before main script.js; verify window.setTempRole exists
 
 **Section sources**
 - [script.js:1056-1059](file://script.js#L1056-L1059)
 - [script.js:1071-1090](file://script.js#L1071-L1090)
 - [script.js:1771-1783](file://script.js#L1771-L1783)
 - [script.js:1816-1875](file://script.js#L1816-L1875)
+- [script-fix.js:41-45](file://script-fix.js#L41-L45)
 
 ## Conclusion
-The BusTrack Pro system delivers a robust, role-aware fleet management solution with real-time tracking, precise routing, and intuitive UI components. The centralized state management system provides a single source of truth for all fleet data, while cross-tab notification synchronization ensures seamless multi-tab operation. The enhanced role-based filtering, expandable bus cards, and real-time notification system create a comprehensive fleet management solution. The modular design allows easy extension for additional features such as alerts, driver logs, and expanded route analytics, while maintaining excellent performance and user experience across all device types and browser environments.
+The BusTrack Pro system delivers a robust, role-aware fleet management solution with real-time tracking, precise routing, and intuitive UI components. The centralized state management system provides a single source of truth for all fleet data, while cross-tab notification synchronization ensures seamless multi-tab operation. The enhanced global function export mechanism guarantees complete compatibility with HTML inline event handlers, resolving critical accessibility issues. The comprehensive role-based filtering, expandable bus cards, and real-time notification system create a comprehensive fleet management solution. The modular design allows easy extension for additional features such as alerts, driver logs, and expanded route analytics, while maintaining excellent performance and user experience across all device types and browser environments.
 
 ## Appendices
 
@@ -735,3 +828,16 @@ Practical state management patterns:
 - [script.js:77-95](file://script.js#L77-L95)
 - [script.js:89-95](file://script.js#L89-L95)
 - [script.js:131-136](file://script.js#L131-L136)
+
+### Global Function Export Examples
+Practical function export patterns:
+- **setTempRole(role)**: Role-based navigation with window object export
+- **processLogin()**: Authentication handler accessible via inline onclick
+- **changeBus(id)**: Bus selection function for chip-based UI
+- **searchAndMove(type)**: Location search with known coordinates priority
+- **publishTrip()**: Trip publishing with coordinate validation
+- **Conditional Exports**: Driver portal functions with fallback implementations
+
+**Section sources**
+- [script-fix.js:22-34](file://script-fix.js#L22-L34)
+- [script.js:2122-2146](file://script.js#L2122-L2146)

@@ -431,10 +431,24 @@ window.addEventListener('storage', (e) => {
 
 // --- 1. AUTH LOGIC (Pure Client-Side) ---
 function setTempRole(role) {
+    console.log("Role selected:", role);
     localStorage.setItem("temp_role", role);
-    document.getElementById('role-selection-v3').style.display = 'none';
-    document.getElementById('auth-form-v3').style.display = 'block';
+    
+    // Redirect based on role
+    if (role === "driver") {
+        window.location.href = "driver.html";
+    } else if (role === "admin") {
+        window.location.href = "admin.html";
+    } else {
+        // Parent uses the main index.html dashboard
+        console.log("Parent role selected - using main dashboard");
+        document.getElementById('role-selection-v3').style.display = 'none';
+        document.getElementById('auth-form-v3').style.display = 'block';
+    }
 }
+
+// Make it globally accessible
+window.setTempRole = setTempRole;
 
 function processLogin() {
     const role = localStorage.getItem("temp_role");

@@ -29,7 +29,14 @@ function setTempRole(role) {
     } else if (role === "admin") {
         window.location.href = "admin.html";
     } else {
-        window.location.href = "parent.html";
+        // Parent uses the main index.html dashboard
+        // Just hide login and show the role selection form
+        console.log("Parent role selected - using main dashboard");
+        // Don't redirect, just show the auth form
+        const roleSelection = document.getElementById('role-selection-v3');
+        const authForm = document.getElementById('auth-form-v3');
+        if (roleSelection) roleSelection.style.display = 'none';
+        if (authForm) authForm.style.display = 'block';
     }
 }
 
