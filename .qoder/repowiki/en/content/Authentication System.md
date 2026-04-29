@@ -3,12 +3,21 @@
 <cite>
 **Referenced Files in This Document**
 - [script.js](file://script.js)
+- [script-fix.js](file://script-fix.js)
 - [index.html](file://index.html)
 - [admin.html](file://admin.html)
 - [driver.html](file://driver.html)
 - [style.css](file://style.css)
+- [test_functions.html](file://test_functions.html)
 - [test_map.html](file://test_map.html)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Added documentation for the temporary fix solution using script-fix.js
+- Updated role selection mechanism to use global function accessibility
+- Enhanced troubleshooting guidance for HTML inline event handler issues
+- Added new section covering the temporary fix implementation
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -16,27 +25,29 @@
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
 5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Security Considerations](#security-considerations)
-9. [Testing Credentials](#testing-credentials)
-10. [Troubleshooting Guide](#troubleshooting-guide)
-11. [Conclusion](#conclusion)
+6. [Temporary Fix Solution](#temporary-fix-solution)
+7. [Dependency Analysis](#dependency-analysis)
+8. [Performance Considerations](#performance-considerations)
+9. [Security Considerations](#security-considerations)
+10. [Testing Credentials](#testing-credentials)
+11. [Troubleshooting Guide](#troubleshooting-guide)
+12. [Conclusion](#conclusion)
 
 ## Introduction
 
 This document provides comprehensive documentation for the multi-role authentication system implemented in the BusTrack MB Pro application. The system features client-side authentication with hardcoded user credentials, role-based access control supporting admin, driver, and parent roles, and session management using localStorage and sessionStorage for maintaining user state across browser sessions.
 
-The authentication system is designed as a pure client-side solution, eliminating server-side dependencies while providing a robust multi-user experience with different permission levels and role-specific interfaces.
+The authentication system is designed as a pure client-side solution, eliminating server-side dependencies while providing a robust multi-user experience with different permission levels and role-specific interfaces. A temporary fix solution has been implemented to address HTML inline event handler accessibility issues.
 
 ## Project Structure
 
-The authentication system spans multiple HTML pages and JavaScript files:
+The authentication system spans multiple HTML pages and JavaScript files with the new temporary fix solution:
 
 ```mermaid
 graph TB
 subgraph "Authentication System"
 Index[index.html<br/>Main Login Page]
+ScriptFix[script-fix.js<br/>Temporary Fix Solution]
 Script[script.js<br/>Core Authentication Logic]
 Style[style.css<br/>UI Styling]
 end
@@ -49,7 +60,8 @@ subgraph "Session Storage"
 Local[localStorage<br/>Persistent Data]
 Session[sessionStorage<br/>Session Data]
 end
-Index --> Script
+Index --> ScriptFix
+ScriptFix --> Script
 Script --> Local
 Script --> Session
 Index --> Style
@@ -58,13 +70,15 @@ Driver --> Script
 ```
 
 **Diagram sources**
-- [index.html:1-141](file://index.html#L1-L141)
+- [index.html:15-17](file://index.html#L15-L17)
+- [script-fix.js:1-52](file://script-fix.js#L1-L52)
 - [script.js:1-938](file://script.js#L1-L938)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
 
 **Section sources**
-- [index.html:1-141](file://index.html#L1-L141)
+- [index.html:15-17](file://index.html#L15-L17)
+- [script-fix.js:1-52](file://script-fix.js#L1-L52)
 - [script.js:1-938](file://script.js#L1-L938)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
@@ -100,7 +114,7 @@ Users --> User : "contains"
 ```
 
 **Diagram sources**
-- [script.js:37-55](file://script.js#L37-L55)
+- [script.js:371-388](file://script.js#L371-L388)
 
 The user database includes:
 - **Admin Account**: `admin` with password `schooladmin789`
@@ -109,7 +123,7 @@ The user database includes:
 - **Driver Accounts**: `bus01` through `bus06` with password `drive123`
 
 **Section sources**
-- [script.js:37-55](file://script.js#L37-L55)
+- [script.js:371-388](file://script.js#L371-L388)
 
 ### Session Management
 
@@ -134,42 +148,46 @@ Launch --> End
 ```
 
 **Diagram sources**
-- [script.js:75-112](file://script.js#L75-L112)
-- [script.js:90-105](file://script.js#L90-L105)
+- [script.js:453-499](file://script.js#L453-L499)
+- [script.js:466-492](file://script.js#L466-L492)
 
 **Section sources**
-- [script.js:75-112](file://script.js#L75-L112)
-- [script.js:90-105](file://script.js#L90-L105)
+- [script.js:453-499](file://script.js#L453-L499)
+- [script.js:466-492](file://script.js#L466-L492)
 
 ## Architecture Overview
 
-The authentication system follows a client-side architecture with role-based routing:
+The authentication system follows a client-side architecture with role-based routing and the new temporary fix solution:
 
 ```mermaid
 sequenceDiagram
 participant User as "User Browser"
 participant Login as "Login Interface"
+participant Fix as "Temporary Fix"
 participant Auth as "Authentication Engine"
 participant Storage as "Storage Layer"
 participant Dashboard as "Role Dashboard"
 User->>Login : Enter Role Selection
-Login->>Auth : setTempRole(role)
+Login->>Fix : setTempRole(role) - Global Access
+Fix->>Auth : setTempRole(role)
 Auth->>Storage : Save temp_role to localStorage
 Login->>Auth : processLogin()
 Auth->>Auth : Validate credentials against USERS
 Auth->>Storage : Store session data
 Auth->>Dashboard : launchDashboard()
 Dashboard->>User : Show role-specific interface
-Note over Auth,Storage : Dual storage approach<br/>localStorage for persistent data<br/>sessionStorage for session data
+Note over Fix,Auth : Temporary fix ensures global accessibility<br/>for HTML inline event handlers
 ```
 
 **Diagram sources**
-- [script.js:70-152](file://script.js#L70-L152)
-- [index.html:42-56](file://index.html#L42-L56)
+- [script-fix.js:22-46](file://script-fix.js#L22-L46)
+- [script.js:433-451](file://script.js#L433-L451)
+- [index.html:50-52](file://index.html#L50-L52)
 
 **Section sources**
-- [script.js:70-152](file://script.js#L70-L152)
-- [index.html:42-56](file://index.html#L42-L56)
+- [script-fix.js:22-46](file://script-fix.js#L22-L46)
+- [script.js:433-451](file://script.js#L433-L451)
+- [index.html:50-52](file://index.html#L50-L52)
 
 ## Detailed Component Analysis
 
@@ -177,8 +195,8 @@ Note over Auth,Storage : Dual storage approach<br/>localStorage for persistent d
 
 The login process consists of several distinct phases:
 
-#### Phase 1: Role Selection
-Users first select their role through the role selection interface:
+#### Phase 1: Role Selection with Global Accessibility
+Users first select their role through the role selection interface with guaranteed global function accessibility:
 
 ```mermaid
 flowchart TD
@@ -188,11 +206,14 @@ RoleSelect --> Parent["Parent Portal"]
 Admin --> TempRole["Store temp_role in localStorage"]
 Driver --> TempRole
 Parent --> TempRole
+TempRole --> GlobalAccess["Global Function Access"]
+GlobalAccess --> InlineHandlers["HTML Inline Event Handlers"]
+InlineHandlers --> TempRoleFunction["setTempRole(role)"]
 ```
 
 **Diagram sources**
-- [index.html:42-48](file://index.html#L42-L48)
-- [script.js:70-74](file://script.js#L70-L74)
+- [index.html:50-52](file://index.html#L50-L52)
+- [script-fix.js:22-46](file://script-fix.js#L22-L46)
 
 #### Phase 2: Credential Validation
 The system validates user credentials against the hardcoded database:
@@ -211,11 +232,11 @@ StoreData --> Launch["Launch Dashboard"]
 ```
 
 **Diagram sources**
-- [script.js:76-112](file://script.js#L76-L112)
+- [script.js:453-499](file://script.js#L453-L499)
 
 **Section sources**
-- [index.html:51-56](file://index.html#L51-L56)
-- [script.js:76-112](file://script.js#L76-L112)
+- [index.html:57-61](file://index.html#L57-L61)
+- [script.js:453-499](file://script.js#L453-L499)
 
 ### Role-Based Access Control
 
@@ -237,8 +258,8 @@ The system implements role-based access control with three distinct user types:
 - **Interface**: Parent portal with child-specific bus monitoring
 
 **Section sources**
-- [script.js:37-55](file://script.js#L37-L55)
-- [admin.html:25-31](file://admin.html#L25-L31)
+- [script.js:371-388](file://script.js#L371-L388)
+- [admin.html:9-32](file://admin.html#L9-L32)
 
 ### Session Management Strategy
 
@@ -271,12 +292,12 @@ SessionManager --> SessionStorage : "uses"
 ```
 
 **Diagram sources**
-- [script.js:90-105](file://script.js#L90-L105)
-- [script.js:114-117](file://script.js#L114-L117)
+- [script.js:466-492](file://script.js#L466-L492)
+- [script.js:494-504](file://script.js#L494-L504)
 
 **Section sources**
-- [script.js:90-105](file://script.js#L90-L105)
-- [script.js:114-117](file://script.js#L114-L117)
+- [script.js:466-492](file://script.js#L466-L492)
+- [script.js:494-504](file://script.js#L494-L504)
 
 ### Dashboard Launch and Role Rendering
 
@@ -300,23 +321,58 @@ UpdateUI --> Ready["Dashboard Ready"]
 ```
 
 **Diagram sources**
-- [script.js:119-152](file://script.js#L119-L152)
-- [script.js:154-205](file://script.js#L154-L205)
+- [script.js:506-552](file://script.js#L506-L552)
+- [script.js:525-551](file://script.js#L525-L551)
 
 **Section sources**
-- [script.js:119-152](file://script.js#L119-L152)
-- [script.js:154-205](file://script.js#L154-L205)
+- [script.js:506-552](file://script.js#L506-L552)
+- [script.js:525-551](file://script.js#L525-L551)
+
+## Temporary Fix Solution
+
+### Problem Statement
+The authentication system encountered an "Uncaught ReferenceError: setTempRole is not defined" error when HTML inline event handlers attempted to call the setTempRole function. This occurred because the function was not globally accessible to inline event handlers.
+
+### Solution Implementation
+A temporary fix solution was implemented through the script-fix.js file that provides global accessibility to the setTempRole function:
+
+```mermaid
+flowchart TD
+Problem["Uncaught ReferenceError: setTempRole is not defined"] --> Solution["script-fix.js Temporary Fix"]
+Solution --> GlobalExport["window.setTempRole = setTempRole"]
+GlobalExport --> InlineHandler["HTML Inline Event Handlers"]
+InlineHandler --> FunctionCall["onclick='setTempRole(role)'"]
+FunctionCall --> Success["Function Executes Successfully"]
+```
+
+**Diagram sources**
+- [script-fix.js:44-46](file://script-fix.js#L44-L46)
+- [index.html:50-52](file://index.html#L50-L52)
+
+### Fix Details
+The temporary fix includes:
+
+1. **Global Function Export**: The setTempRole function is explicitly exported to the window object
+2. **Inline Handler Compatibility**: Ensures HTML inline event handlers can access the function
+3. **Verification Logging**: Console logs confirm successful function loading and accessibility
+4. **Temporary Nature**: Clearly marked as a temporary solution with manual fix instructions
+
+**Section sources**
+- [script-fix.js:1-52](file://script-fix.js#L1-L52)
+- [index.html:15-17](file://index.html#L15-L17)
 
 ## Dependency Analysis
 
-The authentication system has minimal external dependencies:
+The authentication system has minimal external dependencies with the new temporary fix:
 
 ```mermaid
 graph LR
 subgraph "Internal Dependencies"
+ScriptFix[script-fix.js]
 Script[script.js]
 Index[index.html]
 Style[style.css]
+TestFunctions[test_functions.html]
 end
 subgraph "External Dependencies"
 TomTom[TomTom Maps API]
@@ -327,42 +383,52 @@ LocalStorage[localStorage]
 SessionStorage[sessionStorage]
 Toast[Toast Notifications]
 end
+ScriptFix --> GlobalWindow[window.setTempRole]
+ScriptFix --> LocalStorage
+ScriptFix --> SessionStorage
 Script --> LocalStorage
 Script --> SessionStorage
 Script --> Toast
 Index --> Style
+Index --> ScriptFix
+Index --> Script
+TestFunctions --> ScriptFix
+TestFunctions --> Script
 Script --> TomTom
 Driver --> Leaflet
 ```
 
 **Diagram sources**
-- [script.js:1-1](file://script.js#L1-L1)
-- [index.html:8-12](file://index.html#L8-L12)
-- [driver.html:5-1](file://driver.html#L5-L1)
+- [script-fix.js:44-46](file://script-fix.js#L44-L46)
+- [index.html:15-17](file://index.html#L15-L17)
+- [test_functions.html:16](file://test_functions.html#L16)
 
 **Section sources**
-- [script.js:1-1](file://script.js#L1-L1)
-- [index.html:8-12](file://index.html#L8-L12)
-- [driver.html:5-1](file://driver.html#L5-L1)
+- [script-fix.js:44-46](file://script-fix.js#L44-L46)
+- [index.html:15-17](file://index.html#L15-L17)
+- [test_functions.html:16](file://test_functions.html#L16)
 
 ## Performance Considerations
 
-The authentication system is designed for optimal performance:
+The authentication system is designed for optimal performance with the temporary fix:
 
 ### Memory Efficiency
 - User database is stored in memory as a constant object
 - No repeated network requests for authentication validation
 - Minimal DOM manipulation during login process
+- Temporary fix adds negligible overhead
 
 ### Storage Optimization
 - localStorage used for persistent data (roles, user preferences)
 - sessionStorage used for temporary session data
 - Efficient data serialization using JSON
+- Temporary fix maintains existing storage patterns
 
 ### UI Responsiveness
 - Toast notifications provide immediate feedback
 - Asynchronous operations for map initialization
 - Debounced user interaction handling
+- Global function accessibility improves event handler performance
 
 ## Security Considerations
 
@@ -390,6 +456,9 @@ The client-side authentication system has several security vulnerabilities:
 - Can be easily modified by users
 - No server-side role verification
 
+### Temporary Fix Security Implications
+The temporary fix introduces minimal security risk as it only exposes an existing function globally for HTML inline event handlers. However, it does increase the attack surface slightly by making the function accessible globally.
+
 ### Potential Attack Vectors
 
 ```mermaid
@@ -398,6 +467,7 @@ Attack["Potential Security Attacks"] --> Extract["Credential Extraction"]
 Attack --> RoleBypass["Role Bypass"]
 Attack --> SessionTheft["Session Hijacking"]
 Attack --> XSS["Cross-Site Scripting"]
+Attack --> InlineHandler["Inline Handler Exploitation"]
 Extract --> Hardcoded["Hardcoded Credentials"]
 Extract --> Storage["Browser Storage"]
 RoleBypass --> Modify["Modify localStorage"]
@@ -406,6 +476,8 @@ SessionTheft --> Steal["Steal Session Tokens"]
 SessionTheft --> Replay["Session Replay"]
 XSS --> Inject["Inject Malicious Scripts"]
 XSS --> Access["Gain Unauthorized Access"]
+InlineHandler --> GlobalAccess["Global Function Access"]
+InlineHandler --> DirectExecution["Direct Function Execution"]
 ```
 
 ### Security Recommendations
@@ -453,8 +525,8 @@ The system provides predefined test accounts for development and demonstration:
 - **Permissions**: Access all buses
 
 **Section sources**
-- [script.js:37-55](file://script.js#L37-L55)
-- [admin.html:25-31](file://admin.html#L25-L31)
+- [script.js:371-388](file://script.js#L371-L388)
+- [admin.html:9-32](file://admin.html#L9-L32)
 
 ## Troubleshooting Guide
 
@@ -513,9 +585,23 @@ The system provides predefined test accounts for development and demonstration:
 3. Clear localStorage and retry
 4. Check browser console for API errors
 
+#### Temporary Fix Issues
+**Symptoms**: "Uncaught ReferenceError: setTempRole is not defined" error
+**Causes**:
+- script-fix.js not loaded before script.js
+- Function not properly exported to window object
+- HTML inline event handlers not compatible
+
+**Solutions**:
+1. Ensure script-fix.js is loaded before script.js in index.html
+2. Verify the window.setTempRole export is functioning
+3. Check browser console for fix-related errors
+4. Use the manual fix instructions if the temporary solution fails
+
 **Section sources**
-- [script.js:114-117](file://script.js#L114-L117)
-- [script.js:904-909](file://script.js#L904-L909)
+- [script.js:494-504](file://script.js#L494-L504)
+- [script-fix.js:44-46](file://script-fix.js#L44-L46)
+- [index.html:15-17](file://index.html#L15-L17)
 
 ## Conclusion
 
@@ -526,12 +612,14 @@ The BusTrack MB Pro authentication system provides a functional client-side mult
 - **Role-Based Interfaces**: Different views for different user types
 - **Session Management**: Proper separation of persistent and session data
 - **Responsive Design**: Clean, modern user interface
+- **Temporary Fix Solution**: Addresses HTML inline event handler accessibility issues
 
 ### Limitations
 - **Security Vulnerabilities**: Client-side only validation
 - **Limited Scalability**: Hardcoded credentials not suitable for production
 - **Maintenance Challenges**: Credentials embedded in source code
 - **No Audit Trail**: No logging of authentication events
+- **Temporary Fix Dependency**: Reliance on temporary solution for global accessibility
 
 ### Recommendations for Production Use
 
@@ -542,5 +630,6 @@ For production deployment, consider implementing:
 3. **Encryption**: Implement proper password hashing and storage
 4. **API Security**: Add authentication middleware and authorization checks
 5. **Monitoring**: Implement audit logging and security monitoring
+6. **Remove Temporary Fix**: Implement proper module system instead of global functions
 
-The current implementation serves as an excellent foundation for learning client-side authentication patterns and can be adapted for educational purposes or internal development environments with appropriate security modifications.
+The current implementation serves as an excellent foundation for learning client-side authentication patterns and can be adapted for educational purposes or internal development environments with appropriate security modifications. The temporary fix solution addresses immediate accessibility issues while the system evolves toward a more secure and maintainable architecture.
