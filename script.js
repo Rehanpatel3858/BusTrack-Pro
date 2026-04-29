@@ -35,7 +35,143 @@ function updateSyncStatus() {
     }
 }
 
-// --- HARDCODED USER CREDENTIALriveS (Client-side only) ---
+// --- NOTIFICATION SYSTEM ---
+let notifications = [];
+let unreadCount = 0;
+let journeySimulationInterval = null;
+
+// --- CENTRALIZED STATE MANAGEMENT (Single Source of Truth) ---
+const AppState = {
+    currentUser: null,
+    userRole: null,
+    assignedBusId: null,  // For parents: their assigned bus; for drivers: their bus; for admin: null (all)
+    activeBusId: 'bus01',  // Currently selected bus in UI
+    fleetData: {},
+    journeyState: {},
+    
+    // Initialize state from localStorage/sessionStorage
+    init() {
+        this.currentUser = sessionStorage.getItem('active_user') || localStorage.getItem('active_user');
+        this.userRole = sessionStorage.getItem('active_role') || localStorage.getItem('saved_user_role');
+        this.assignedBusId = this.getUserAssignedBus();
+        this.activeBusId = sessionStorage.getItem('active_bus') || 'bus01';
+        this.fleetData = JSON.parse(localStorage.getItem('fleet_data') || '{}');
+        this.journeyState = JSON.parse(localStorage.getItem('journey_state') || '{}');
+        
+        console.log('AppState initialized:', {
+            user: this.currentUser,
+            role: this.userRole,
+            assignedBus: this.assignedBusId,
+            activeBus: this.activeBusId
+        });
+    },
+    
+    // Get user's assigned bus from USERS config
+    getUserAssignedBus() {
+        if (!this.currentUser || !USERS[this.currentUser]) return null;
+        return USERS[this.currentUser].busId || null;
+    },
+    
+    // Check if user should see a specific bus
+    canViewBus(busId) {
+        // Admin can see all buses
+        if (this.userRole === 'admin') return true;
+        // Driver can only see their assigned bus
+        if (this.userRole === 'driver') return busId === this.assignedBusId;
+        // Parent can only see their assigned bus
+        if (this.userRole === 'parent') return busId === this.assignedBusId;
+        // Default: allow (fallback)
+        return true;
+    },
+    
+    // Check if user should see a notification for a bus
+    shouldShowNotification(notificationBusId) {
+        // Admin sees all notifications
+        if (this.userRole === 'admin') return true;
+        // Driver and Parent only see notifications for their assigned bus
+        return notificationBusId === this.assignedBusId;
+    },
+    
+    // Update fleet data (single source of truth)
+    updateFleetData(busId, updates) {
+        if (!this.fleetData[busId]) {
+            this.fleetData[busId] = { active: false };
+// --- NOTIFICATION SYSTEM ---
+let notifications = [];
+let unreadCount = 0;
+let journeySimulationInterval = null;
+
+// --- CENTRALIZED STATE MANAGEMENT (Single Source of Truth) ---
+const AppState = {
+    currentUser: null,
+    userRole: null,
+    assignedBusId: null,  // For parents: their assigned bus; for drivers: their bus; for admin: null (all)
+    activeBusId: 'bus01',  // Currently selected bus in UI
+    fleetData: {},
+    journeyState: {},
+    
+    // Initialize state from localStorage/sessionStorage
+    init() {
+        this.currentUser = sessionStorage.getItem('active_user') || localStorage.getItem('active_user');
+        this.userRole = sessionStorage.getItem('active_role') || localStorage.getItem('saved_user_role');
+        this.assignedBusId = this.getUserAssignedBus();
+        this.activeBusId = sessionStorage.getItem('active_bus') || 'bus01';
+        this.fleetData = JSON.parse(localStorage.getItem('fleet_data') || '{}');
+        this.journeyState = JSON.parse(localStorage.getItem('journey_state') || '{}');
+        
+        console.log('AppState initialized:', {
+            user: this.currentUser,
+            role: this.userRole,
+            assignedBus: this.assignedBusId,
+            activeBus: this.activeBusId
+        });
+    },
+    
+    // Get user's assigned bus from USERS config
+    getUserAssignedBus() {
+        if (!this.currentUser || !USERS[this.currentUser]) return null;
+        return USERS[this.currentUser].busId || null;
+    },
+    
+    // Check if user should see a specific bus
+    canViewBus(busId) {
+        // Admin can see all buses
+        if (this.userRole === 'admin') return true;
+        // Driver can only see their assigned bus
+        if (this.userRole === 'driver') return busId === this.assignedBusId;
+        // Parent can only see their assigned bus
+        if (this.userRole === 'parent') return busId === this.assignedBusId;
+        // Default: allow (fallback)
+        return true;
+    },
+    
+    // Check if user should see a notification for a bus
+    shouldShowNotification(notificationBusId) {
+        // Admin sees all notifications
+        if (this.userRole === 'admin') return true;
+        // Driver and Parent only see notifications for their assigned bus
+        return notificationBusId === this.assignedBusId;
+    },
+    
+    // Update fleet data (single source of truth)
+    updateFleetData(busId, updates) {
+        if (!this.fleetData[busId]) {
+            this.fleetData[busId] = { active: false };
+        }
+        this.fleetData[busId] = { ...this.fleetData[busId], ...updates };
+        localStorage.setItem('fleet_data', JSON.stringify(this.fleetData));
+        console.log(`Fleet data updated for ${busId}:`, updates);
+    },
+    
+    // Sync state from localStorage (call when external changes occur)
+    sync() {
+        this.fleetData = JSON.parse(localStorage.getItem('fleet_data') || '{}');
+        this.journeyState = JSON.parse(localStorage.getItem('journey_state') || '{}');
+        console.log('AppState synced from localStorage');
+    }
+};
+
+// --- HARDCODED USER CREDENTIALS (Client-side only) ---
 =======
 // --- NOTIFICATION SYSTEM ---
 let notifications = [];
@@ -1979,3 +2115,32 @@ window.onload = () => {
         launchDashboard();
     }
 };
+
+// ============================================
+// MAKE ALL FUNCTIONS GLOBALLY ACCESSIBLE
+// This is REQUIRED for inline onclick handlers
+// ============================================
+window.setTempRole = setTempRole;
+window.processLogin = processLogin;
+window.resetLogin = resetLogin;
+window.switchRole = switchRole;
+window.logout = logout;
+window.changeBus = changeBus;
+window.resetBus = resetBus;
+window.showResetConfirm = showResetConfirm;
+window.closeConfirmModal = closeConfirmModal;
+window.executeReset = executeReset;
+window.searchAndMove = searchAndMove;
+window.getUserLocation = getUserLocation;
+window.publishTrip = publishTrip;
+window.mapZoomIn = mapZoomIn;
+window.mapZoomOut = mapZoomOut;
+window.mapFitAll = mapFitAll;
+window.toggleGPS = typeof toggleGPS !== 'undefined' ? toggleGPS : function() {};
+window.markArrival = typeof markArrival !== 'undefined' ? markArrival : function() {};
+window.sendAlert = typeof sendAlert !== 'undefined' ? sendAlert : function() {};
+window.viewMap = typeof viewMap !== 'undefined' ? viewMap : function() {};
+window.emergency = typeof emergency !== 'undefined' ? emergency : function() {};
+
+console.log('✅ All functions exported to global scope');
+console.log('✅ setTempRole is:', typeof window.setTempRole);

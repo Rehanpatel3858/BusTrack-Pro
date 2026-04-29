@@ -10,6 +10,14 @@
 - [test_map.html](file://test_map.html)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Added new map overlay controls (zoom, route fitting) with smooth animations
+- Implemented resizable sidebar functionality with drag handles and responsive constraints
+- Enhanced coordinate loading from localStorage with comprehensive error handling and validation
+- Added interactive legend elements for map visualization
+- Updated UI integration to support new map controls and sidebar resizing
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -24,6 +32,8 @@
 ## Introduction
 This document explains the TomTom Maps SDK integration and routing functionality for the BusTrack MB Pro system. It covers interactive mapping with custom marker styling, route calculation and visualization, coordinate system usage, known location database, fuzzy search and location matching, fallback to TomTom APIs, traffic-aware routing, multi-layered route visualization with glow effects, custom styling, auto-zoom capabilities, ETA calculation logic, real-time route updates, supported location queries, and troubleshooting common mapping issues.
 
+**Updated** Added new map overlay controls (zoom, route fitting), interactive legend elements, resizable sidebar functionality with drag handles, and enhanced coordinate loading from localStorage with improved error handling.
+
 ## Project Structure
 The project consists of a single-page application with a dashboard that integrates TomTom Maps and Services, plus auxiliary pages for administration and driver portal. The main runtime logic resides in a single JavaScript file that orchestrates authentication, map initialization, search, routing, and UI updates.
 
@@ -37,17 +47,17 @@ H["test_map.html<br/>Leaflet test page"] --> I["Leaflet map test"]
 ```
 
 **Diagram sources**
-- [index.html:1-141](file://index.html#L1-L141)
-- [script.js:1-938](file://script.js#L1-L938)
-- [style.css:1-901](file://style.css#L1-L901)
+- [index.html:1-238](file://index.html#L1-L238)
+- [script.js:1-2146](file://script.js#L1-L2146)
+- [style.css:1-2440](file://style.css#L1-L2440)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
 - [test_map.html:1-51](file://test_map.html#L1-L51)
 
 **Section sources**
-- [index.html:1-141](file://index.html#L1-L141)
-- [script.js:1-938](file://script.js#L1-L938)
-- [style.css:1-901](file://style.css#L1-L901)
+- [index.html:1-238](file://index.html#L1-L238)
+- [script.js:1-2146](file://script.js#L1-L2146)
+- [style.css:1-2440](file://style.css#L1-L2440)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
 - [test_map.html:1-51](file://test_map.html#L1-L51)
@@ -61,9 +71,16 @@ H["test_map.html<br/>Leaflet test page"] --> I["Leaflet map test"]
 - ETA calculation and progress visualization
 - Local storage-backed fleet data persistence
 - Toast notifications and modal confirmations
+- **New** Map overlay controls (zoom in/out, fit route) with smooth animations
+- **New** Resizable sidebar with drag handles and responsive constraints
+- **New** Interactive legend elements for map visualization
+- **Enhanced** Coordinate loading with comprehensive validation and error handling
 
 **Section sources**
 - [script.js:37-152](file://script.js#L37-L152)
+- [script.js:274-367](file://script.js#L274-L367)
+- [script.js:540-584](file://script.js#L540-L584)
+- [script.js:1742-1806](file://script.js#L1742-L1806)
 - [script.js:207-578](file://script.js#L207-L578)
 - [script.js:580-719](file://script.js#L580-L719)
 - [script.js:887-938](file://script.js#L887-L938)
@@ -103,8 +120,8 @@ end
 ```
 
 **Diagram sources**
-- [script.js:228-364](file://script.js#L228-L364)
-- [script.js:447-570](file://script.js#L447-L570)
+- [script.js:633-769](file://script.js#L633-L769)
+- [script.js:866-1060](file://script.js#L866-L1060)
 
 ## Detailed Component Analysis
 
@@ -126,8 +143,8 @@ Launch --> End(["Authenticated"])
 ```
 
 **Diagram sources**
-- [script.js:76-112](file://script.js#L76-L112)
-- [script.js:119-151](file://script.js#L119-L151)
+- [script.js:439-469](file://script.js#L439-L469)
+- [script.js:586-598](file://script.js#L586-L598)
 
 **Section sources**
 - [script.js:37-152](file://script.js#L37-L152)
@@ -169,7 +186,7 @@ Coordinate system usage:
 - Internal state stores {lat, lng, name}
 
 **Section sources**
-- [script.js:209-226](file://script.js#L209-L226)
+- [script.js:614-631](file://script.js#L614-L631)
 
 ### Fuzzy Search and Location Matching
 - Uses TomTom fuzzySearch with center and radius around Mira-Bhayandar area
@@ -193,10 +210,10 @@ Store --> Update["updateMarkersAndRoute()"]
 ```
 
 **Diagram sources**
-- [script.js:228-364](file://script.js#L228-L364)
+- [script.js:633-769](file://script.js#L633-L769)
 
 **Section sources**
-- [script.js:228-364](file://script.js#L228-L364)
+- [script.js:633-769](file://script.js#L633-L769)
 
 ### Route Calculation and Traffic-Aware Optimization
 - Uses TomTom Routing API with bus travel mode and fastest route type
@@ -218,10 +235,10 @@ JS->>JS : Add multi-layer route visualization
 ```
 
 **Diagram sources**
-- [script.js:447-570](file://script.js#L447-L570)
+- [script.js:866-1060](file://script.js#L866-L1060)
 
 **Section sources**
-- [script.js:447-570](file://script.js#L447-L570)
+- [script.js:866-1060](file://script.js#L866-L1060)
 
 ### Multi-Layered Route Visualization and Custom Styling
 - Adds a glow layer beneath the main route
@@ -240,11 +257,91 @@ D --> E
 ```
 
 **Diagram sources**
-- [script.js:488-549](file://script.js#L488-L549)
+- [script.js:987-1024](file://script.js#L987-L1024)
 
 **Section sources**
-- [script.js:367-444](file://script.js#L367-L444)
-- [script.js:488-549](file://script.js#L488-L549)
+- [script.js:865-1060](file://script.js#L865-L1060)
+
+### Map Overlay Controls and Interactive Features
+- **New** Zoom controls with smooth animations (zoom in/out buttons)
+- **New** Route fitting functionality to auto-fit markers and route geometry
+- **New** Interactive legend elements for map visualization
+- **New** Enhanced coordinate loading with validation and error handling
+
+```mermaid
+flowchart TD
+Controls["Map Overlay Controls"] --> ZoomIn["+ Button<br/>mapZoomIn()"]
+Controls --> ZoomOut["- Button<br/>mapZoomOut()"]
+Controls --> FitRoute["⊡ Button<br/>mapFitAll()"]
+Legend["Interactive Legend"] --> StartPoint["Start Point Marker"]
+Legend --> Destination["Destination Marker"]
+Legend --> RoutePath["Route Path Visualization"]
+```
+
+**Diagram sources**
+- [script.js:1742-1806](file://script.js#L1742-L1806)
+- [index.html:212-233](file://index.html#L212-L233)
+
+**Section sources**
+- [script.js:1742-1806](file://script.js#L1742-L1806)
+- [index.html:212-233](file://index.html#L212-L233)
+
+### Resizable Sidebar Functionality
+- **New** Drag handle implementation for sidebar resizing
+- **New** Responsive width constraints (220px - 400px)
+- **New** Smooth resizing with visual feedback
+- **New** Automatic map resize during and after dragging
+
+```mermaid
+flowchart TD
+Init["initResizableSidebar()"] --> CreateHandle["Create resize handle element"]
+CreateHandle --> HoverEffect["Add hover effect"]
+HoverEffect --> MouseDown["Mouse down - start resizing"]
+MouseDown --> MouseMove["Mouse move - resize sidebar"]
+MouseMove --> Constrain["Constrain width (220-400px)"]
+Constrain --> MapResize["Trigger map.resize()"]
+MapResize --> MouseUp["Mouse up - stop resizing"]
+MouseUp --> FinalResize["Final map resize"]
+```
+
+**Diagram sources**
+- [script.js:274-367](file://script.js#L274-L367)
+
+**Section sources**
+- [script.js:274-367](file://script.js#L274-L367)
+
+### Enhanced Coordinate Loading from localStorage
+- **Enhanced** Comprehensive validation for start and end coordinates
+- **Enhanced** Error handling for invalid or missing coordinate data
+- **Enhanced** Graceful degradation when coordinates are invalid
+- **Enhanced** Improved logging and debugging information
+
+```mermaid
+flowchart TD
+Load["loadBusRoute(busId)"] --> ParseData["Parse localStorage fleet_data"]
+ParseData --> CheckBusData{"Bus data exists?"}
+CheckBusData --> |No| WarnNoData["Console warn: No data for bus"]
+CheckBusData --> |Yes| ValidateStart["Validate start coordinates"]
+ValidateStart --> StartValid{"Start coords valid?"}
+StartValid --> |Yes| SetStart["Set startCoords with validation"]
+StartValid --> |No| ClearStart["Clear startCoords"]
+SetStart --> ValidateEnd["Validate end coordinates"]
+ValidateEnd --> EndValid{"End coords valid?"}
+EndValid --> |Yes| SetEnd["Set endCoords with validation"]
+EndValid --> |No| ClearEnd["Clear endCoords"]
+SetEnd --> UpdateMarkers["Update markers and route"]
+ClearEnd --> UpdateMarkers
+ClearStart --> UpdateMarkers
+UpdateMarkers --> SyncData["Call syncData()"]
+WarnNoData --> Return["Return function"]
+SyncData --> Return
+```
+
+**Diagram sources**
+- [script.js:540-584](file://script.js#L540-L584)
+
+**Section sources**
+- [script.js:540-584](file://script.js#L540-L584)
 
 ### ETA Calculation Logic and Real-Time Updates
 - Computes ETA in minutes from route summary
@@ -262,12 +359,12 @@ UI --> End(["Real-time ETA visible"])
 ```
 
 **Diagram sources**
-- [script.js:473-482](file://script.js#L473-L482)
-- [script.js:581-623](file://script.js#L581-L623)
+- [script.js:963-973](file://script.js#L963-L973)
+- [script.js:1071-1140](file://script.js#L1071-L1140)
 
 **Section sources**
-- [script.js:473-482](file://script.js#L473-L482)
-- [script.js:581-623](file://script.js#L581-L623)
+- [script.js:963-973](file://script.js#L963-L973)
+- [script.js:1071-1140](file://script.js#L1071-L1140)
 
 ### UI Integration and Interaction Controls
 - Fleet list chips with active state styling
@@ -275,12 +372,15 @@ UI --> End(["Real-time ETA visible"])
 - Toast notifications for feedback
 - Reset confirmation modal for clearing bus data
 - Auto-sync status indicator with pulsing animation
+- **New** Map overlay controls with glassmorphism styling
+- **New** Interactive legend with visual indicators
 
 **Section sources**
 - [script.js:154-205](file://script.js#L154-L205)
-- [script.js:581-623](file://script.js#L581-L623)
+- [script.js:1071-1140](file://script.js#L1071-L1140)
 - [script.js:739-770](file://script.js#L739-L770)
-- [style.css:426-474](file://style.css#L426-L474)
+- [style.css:1702-1784](file://style.css#L1702-L1784)
+- [style.css:1737-1784](file://style.css#L1737-L1784)
 
 ## Dependency Analysis
 - TomTom Maps SDK and Services are loaded from CDN in the main HTML
@@ -299,12 +399,11 @@ JS --> DOM["DOM Elements"]
 ```
 
 **Diagram sources**
-- [index.html:8-12](file://index.html#L8-L12)
+- [index.html:11-13](file://index.html#L11-L13)
 - [script.js:1](file://script.js#L1)
-- [script.js:581](file://script.js#L581)
 
 **Section sources**
-- [index.html:8-12](file://index.html#L8-L12)
+- [index.html:11-13](file://index.html#L11-L13)
 - [script.js:1](file://script.js#L1)
 
 ## Performance Considerations
@@ -312,8 +411,9 @@ JS --> DOM["DOM Elements"]
 - Route layers are removed and re-added to avoid accumulation
 - Auto-zoom uses bounds fitting with padding for optimal visibility
 - Periodic sync runs at a reasonable interval to balance responsiveness and performance
-
-[No sources needed since this section provides general guidance]
+- **New** Map overlay controls use smooth animations with optimized duration settings
+- **New** Resizable sidebar implements efficient constraint checking and minimal DOM manipulation
+- **Enhanced** Coordinate loading includes early validation to prevent unnecessary processing
 
 ## Troubleshooting Guide
 Common mapping issues and resolutions:
@@ -322,16 +422,25 @@ Common mapping issues and resolutions:
 - Incorrect locations: Use exact known locations for Shree L.R. Tiwari College of Engineering and Mira Road Railway Station
 - ETA not updating: Confirm route calculation succeeded and local storage is accessible
 - UI stuck in sync: Check interaction cooldown flags and modal confirmations
+- **New** Map controls not responding: Ensure map is initialized before calling zoom/fit functions
+- **New** Sidebar not resizing: Check for proper event listener attachment and CSS positioning
+- **New** Invalid coordinates error: Verify coordinate values are numeric and within valid ranges
 
 Supporting evidence:
 - Network error handling in route calculation
 - Toast notifications for user feedback
 - Reset confirmation modal to clear stale data
+- **Enhanced** Coordinate validation and error messages
+- **New** Map control error handling and logging
 
 **Section sources**
-- [script.js:557-569](file://script.js#L557-L569)
-- [script.js:915-920](file://script.js#L915-L920)
+- [script.js:1742-1806](file://script.js#L1742-L1806)
+- [script.js:274-367](file://script.js#L274-L367)
+- [script.js:540-584](file://script.js#L540-L584)
+- [script.js:914-915](file://script.js#L914-L915)
 - [script.js:742-770](file://script.js#L742-L770)
 
 ## Conclusion
 The BusTrack MB Pro system integrates TomTom Maps and Services to deliver a robust, interactive fleet monitoring solution. It combines a known location database with fuzzy search, traffic-aware routing, and rich visualization to provide accurate ETA and route insights. The modular design, client-side authentication, and persistent data model enable seamless operation across driver and monitor portals.
+
+**Updated** The recent enhancements include new map overlay controls for zoom and route fitting, resizable sidebar functionality with drag handles, interactive legend elements, and significantly improved coordinate loading with comprehensive error handling. These additions enhance user experience while maintaining the system's reliability and performance standards.

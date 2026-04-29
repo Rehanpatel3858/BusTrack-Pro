@@ -9,6 +9,15 @@
 - [driver.html](file://driver.html)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Updated to document the new centralized state management system with AppState object
+- Added documentation for cross-tab synchronization capabilities using localStorage events
+- Enhanced data validation and error handling mechanisms
+- Documented the dual persistence model with localStorage for fleet data and journey state
+- Added comprehensive role-based access control and filtering
+- Updated real-time notification system with journey state tracking
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -22,304 +31,288 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document explains the data management and persistence system built around localStorage for storing and synchronizing fleet data. It covers the fleet data structure, initialization, synchronization, state management, real-time updates, conflict prevention, validation, error handling, and fallbacks. It also outlines scalability considerations and migration paths to more robust storage solutions.
+This document explains the advanced data management and persistence system built around a centralized AppState object that serves as the single source of truth for fleet data. The system features cross-tab synchronization, role-based access control, real-time notifications, and comprehensive data validation. It covers the fleet data structure, initialization, synchronization, state management, real-time updates, conflict prevention, validation, error handling, and fallbacks. It also outlines scalability considerations and migration paths to more robust storage solutions.
 
 ## Project Structure
 The application consists of:
-- A single-page JavaScript application with HTML/CSS for UI and a central script.js orchestrating logic.
-- A minimal admin portal and a driver portal for demonstration.
-- A persistent localStorage-backed fleet dataset keyed by bus identifiers.
+- A centralized state management system with AppState object as the core orchestrator
+- Cross-tab synchronization using localStorage events for real-time updates
+- Role-based access control with session-based separation
+- Dual persistence model: localStorage for fleet data and journey state
+- Real-time notification system with journey tracking
 
 ```mermaid
 graph TB
-UI["index.html<br/>Dashboard UI"] --> JS["script.js<br/>Application Logic"]
-JS --> LS["localStorage<br/>fleet_data"]
-JS --> Map["TomTom Maps SDK<br/>Routing & Rendering"]
-Admin["admin.html<br/>Admin Demo"] --> JS
-Driver["driver.html<br/>Driver Demo"] --> JS
+UI["index.html<br/>Dashboard UI"] --> AppState["AppState<br/>Centralized State Manager"]
+AppState --> LS["localStorage<br/>fleet_data & journey_state"]
+AppState --> Map["TomTom Maps SDK<br/>Routing & Rendering"]
+AppState --> Notifications["Real-time Notifications<br/>Journey State Tracking"]
+Admin["admin.html<br/>Admin Demo"] --> AppState
+Driver["driver.html<br/>Driver Demo"] --> AppState
+CrossTab["Other Browser Tabs<br/>Cross-tab Sync"] --> LS
 ```
 
 **Diagram sources**
-- [index.html:1-141](file://index.html#L1-L141)
-- [script.js:1-938](file://script.js#L1-L938)
+- [script.js:45-136](file://script.js#L45-L136)
+- [script.js:266-294](file://script.js#L266-L294)
+- [index.html:1-238](file://index.html#L1-L238)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
 
 **Section sources**
-- [index.html:1-141](file://index.html#L1-L141)
-- [script.js:1-938](file://script.js#L1-L938)
+- [script.js:45-136](file://script.js#L45-L136)
+- [script.js:266-294](file://script.js#L266-L294)
+- [index.html:1-238](file://index.html#L1-L238)
 
 ## Core Components
-- Fleet data store: A single localStorage key “fleet_data” containing an object keyed by bus identifiers (e.g., bus01 through bus06). Each bus entry holds operational and route metadata.
-- Initialization routine: Ensures “fleet_data” exists with default entries on first run.
-- Synchronization routine: Periodic UI updates driven by a 5-second interval and user-interaction cooldown to prevent conflicts.
-- Session-based separation: Roles and active user/bus are stored in sessionStorage/localStorage to separate contexts across roles.
-- Validation and error handling: Defensive parsing, known-location fallbacks, and user feedback via toast notifications.
+- **AppState Object**: Centralized state manager serving as the single source of truth for all fleet data and journey state
+- **Cross-tab Synchronization**: Real-time updates across multiple browser tabs using localStorage events
+- **Dual Persistence Model**: Separate localStorage keys for fleet_data and journey_state with automatic synchronization
+- **Role-based Access Control**: Session-based filtering of buses based on user roles (admin, driver, parent)
+- **Enhanced Data Validation**: Comprehensive validation for coordinates, route calculations, and state consistency
+- **Real-time Notifications**: Journey state tracking with automated notifications for bus movements
+- **Session-based Separation**: Role and active user/bus stored in sessionStorage/localStorage for context isolation
 
 **Section sources**
-- [script.js:57-67](file://script.js#L57-L67)
-- [script.js:580-623](file://script.js#L580-L623)
-- [script.js:887](file://script.js#L887)
-- [script.js:70-112](file://script.js#L70-L112)
+- [script.js:45-136](file://script.js#L45-L136)
+- [script.js:266-294](file://script.js#L266-L294)
+- [script.js:1813-1950](file://script.js#L1813-L1950)
+- [script.js:235-252](file://script.js#L235-L252)
 
 ## Architecture Overview
-The system uses a singleton-like localStorage store as the source of truth for fleet data. The UI reads from and writes to this store, with periodic synchronization and user-interaction guards to avoid conflicts.
+The system uses a centralized AppState object as the single source of truth, with localStorage serving as the persistent store. Cross-tab synchronization ensures real-time updates across multiple browser sessions. The system implements role-based access control and comprehensive data validation.
 
 ```mermaid
 sequenceDiagram
 participant User as "User"
 participant UI as "Dashboard UI"
-participant JS as "script.js"
+participant AppState as "AppState Object"
 participant LS as "localStorage"
-participant Map as "TomTom Maps"
+participant OtherTabs as "Other Browser Tabs"
 User->>UI : "Enter locations / change bus"
-UI->>JS : "Event handlers"
-JS->>LS : "Read fleet_data"
-JS->>Map : "Search/Route APIs"
-Map-->>JS : "Coordinates/ETA"
-JS->>LS : "Write updated bus fields"
-JS->>UI : "Render UI updates"
-Note over JS,LS : "Cooldown prevents concurrent writes"
-JS->>UI : "Periodic sync every 5s"
+UI->>AppState : "updateFleetData() / updateJourneyState()"
+AppState->>LS : "Persist to localStorage"
+LS-->>OtherTabs : "storage event"
+OtherTabs->>AppState : "sync() method"
+AppState->>UI : "refreshUI() with new state"
+Note over AppState,LS : "Cross-tab sync prevents conflicts"
 ```
 
 **Diagram sources**
-- [script.js:228-364](file://script.js#L228-L364)
-- [script.js:446-570](file://script.js#L446-L570)
-- [script.js:580-623](file://script.js#L580-L623)
-- [script.js:887](file://script.js#L887)
+- [script.js:97-136](file://script.js#L97-L136)
+- [script.js:266-294](file://script.js#L266-L294)
+- [script.js:1284-1303](file://script.js#L1284-L1303)
 
 ## Detailed Component Analysis
 
-### Fleet Data Structure
-- Key: “fleet_data”
-- Value: An object mapping bus identifiers to bus records.
-- Example record fields (per bus):
-  - active: Boolean indicating live tracking state.
-  - lat/lng: Current start coordinates.
-  - from: Human-readable start name.
-  - dLat/dLng: Destination coordinates.
-  - to: Human-readable destination name.
-  - eta: Estimated time of arrival in minutes.
-- Initialization ensures six buses (bus01..bus06) exist with default active=false.
+### Centralized State Management System
+The AppState object serves as the single source of truth for all application state, managing:
+- **currentUser**: Currently authenticated user
+- **userRole**: Role-based permissions (admin, driver, parent)
+- **assignedBusId**: Bus assignment for parent/driver users
+- **activeBusId**: Currently selected bus in UI
+- **fleetData**: Complete fleet information with validation
+- **journeyState**: Real-time journey tracking and notifications
 
 ```mermaid
 flowchart TD
-Start(["Initialize fleet_data"]) --> CheckLS["Check 'fleet_data' exists"]
-CheckLS --> Exists{"Exists?"}
-Exists --> |No| BuildDefault["Create default entries for bus01..bus06"]
-BuildDefault --> SaveLS["Save to localStorage"]
-Exists --> |Yes| Done(["Done"])
-SaveLS --> Done
+AppStateInit["AppState.init()"] --> LoadUser["Load user/session data"]
+LoadUser --> LoadFleet["Load fleet_data from localStorage"]
+LoadUser --> LoadJourney["Load journey_state from localStorage"]
+LoadFleet --> ValidateFleet["Validate fleet data structure"]
+LoadJourney --> ValidateJourney["Validate journey state"]
+ValidateFleet --> Ready["AppState Ready"]
+ValidateJourney --> Ready
 ```
 
 **Diagram sources**
-- [script.js:57-67](file://script.js#L57-L67)
+- [script.js:54-69](file://script.js#L54-L69)
+- [script.js:97-136](file://script.js#L97-L136)
 
 **Section sources**
-- [script.js:57-67](file://script.js#L57-L67)
+- [script.js:45-136](file://script.js#L45-L136)
+- [script.js:54-69](file://script.js#L54-L69)
 
-### Initialization Process
-- On page load, the system checks for “fleet_data”. If absent, it creates default entries for six buses and stores them in localStorage.
-- This guarantees a consistent baseline for subsequent operations.
+### Cross-tab Synchronization
+The system implements real-time synchronization across multiple browser tabs using localStorage events:
 
-**Section sources**
-- [script.js:926-938](file://script.js#L926-L938)
-- [script.js:57-67](file://script.js#L57-L67)
-
-### Data Synchronization Mechanism
-- Periodic sync: A 5-second interval triggers UI updates by reading “fleet_data” and updating displays.
-- Cooldown mechanism: During user interactions (search, route calculation, bus change, publish), a 3-second cooldown prevents overlapping writes and UI refreshes.
-- Reset guard: When a reset operation is in progress, sync is paused until completion.
-
-```mermaid
-flowchart TD
-SyncStart["syncData() called"] --> CheckReset{"isResetting?"}
-CheckReset --> |Yes| Pause["Hide status & return"]
-CheckReset --> |No| CheckCooldown{"isUserInteracting & recent?"}
-CheckCooldown --> |Yes| Pause
-CheckCooldown --> |No| ReadLS["Parse 'fleet_data'"]
-ReadLS --> UpdateUI["Update UI fields"]
-UpdateUI --> End(["Done"])
-```
-
-**Diagram sources**
-- [script.js:580-623](file://script.js#L580-L623)
-- [script.js:887](file://script.js#L887)
-
-**Section sources**
-- [script.js:580-623](file://script.js#L580-L623)
-- [script.js:887](file://script.js#L887)
-
-### State Management with localStorage as Singleton
-- Source of truth: “fleet_data” is the single persisted state for all buses.
-- Session separation:
-  - Roles and active user/bus are stored in sessionStorage/localStorage to isolate contexts across roles (admin, driver, parent).
-  - Active bus selection is stored in sessionStorage to persist across dashboard actions.
-- UI state:
-  - Sync status indicator reflects whether updates are paused due to user interaction or reset.
-
-**Section sources**
-- [script.js:70-112](file://script.js#L70-L112)
-- [script.js:119-152](file://script.js#L119-L152)
-- [script.js:14-26](file://script.js#L14-L26)
-
-### Real-Time Updates and Interaction Cooldown
-- Real-time updates: syncData runs every 5 seconds to reflect latest “fleet_data”.
-- Interaction cooldown: Flags track user activity and a 3-second cooldown prevents immediate re-syncs after user actions (search, route calc, bus change, publish).
-- Reset flow: Dedicated reset modal sets flags to pause sync until completion.
-
-**Section sources**
-- [script.js:8-11](file://script.js#L8-L11)
-- [script.js:580-623](file://script.js#L580-L623)
-- [script.js:742-770](file://script.js#L742-L770)
-
-### Data Validation, Error Handling, and Fallbacks
-- Defensive parsing: All localStorage reads parse JSON safely; defaults are created when missing.
-- Known locations: Exact coordinate sets for predefined locations reduce API ambiguity and improve reliability.
-- Route calculation errors: Specific messages differentiate bad requests, network issues, and invalid locations.
-- UI feedback: Toast notifications inform users of successes and failures.
-
-**Section sources**
-- [script.js:251-264](file://script.js#L251-L264)
-- [script.js:328-341](file://script.js#L328-L341)
-- [script.js:452-570](file://script.js#L452-L570)
-- [script.js:915-920](file://script.js#L915-L920)
-
-### Update Patterns and Examples
-- Updating current location:
-  - Parse “fleet_data”, set lat/lng/from for active bus, write back to localStorage, update markers/route, trigger sync.
-- Updating destination:
-  - Similar pattern for dLat/dLng/to.
-- Calculating ETA:
-  - After route calculation, store eta and update UI.
-- Publishing a trip:
-  - Set active=true for the active bus and notify the user.
+- **Event Listener**: Listens for 'journey_state' and 'fleet_data' key changes
+- **Automatic Sync**: Calls AppState.sync() to refresh state from localStorage
+- **Notification Filtering**: Only shows notifications for user's assigned bus
+- **UI Refresh**: Automatically updates UI components when state changes
 
 ```mermaid
 sequenceDiagram
-participant UI as "Dashboard"
-participant JS as "script.js"
+participant Tab1 as "Browser Tab 1"
+participant Tab2 as "Browser Tab 2"
 participant LS as "localStorage"
-participant Map as "TomTom"
-UI->>JS : "searchAndMove('current')"
-JS->>Map : "Search API"
-Map-->>JS : "Coordinates"
-JS->>LS : "Write lat/lng/from"
-JS->>JS : "updateMarkersAndRoute()"
-JS->>JS : "syncData()"
+Tab1->>LS : "write fleet_data/journey_state"
+LS-->>Tab2 : "storage event"
+Tab2->>Tab2 : "AppState.sync()"
+Tab2->>Tab2 : "refreshUI()"
+Tab2->>Tab2 : "Filter notifications by role"
 ```
 
 **Diagram sources**
-- [script.js:228-364](file://script.js#L228-L364)
-- [script.js:580-623](file://script.js#L580-L623)
+- [script.js:266-294](file://script.js#L266-L294)
+- [script.js:1284-1303](file://script.js#L1284-L1303)
 
 **Section sources**
-- [script.js:228-364](file://script.js#L228-L364)
-- [script.js:446-570](file://script.js#L446-L570)
-- [script.js:888-903](file://script.js#L888-L903)
+- [script.js:266-294](file://script.js#L266-L294)
+- [script.js:1284-1303](file://script.js#L1284-L1303)
 
-### Reset and Fallback Behavior
-- Reset clears all per-bus fields (coordinates, route, ETA) while keeping the bus entry present.
-- UI reacts by clearing markers, inputs, and hiding ETA boxes for the affected bus.
-- Cooldown ensures no conflicting updates during reset.
+### Role-based Access Control
+The system implements comprehensive role-based filtering:
+
+- **Admin Users**: Can view all buses and all notifications
+- **Driver Users**: Can only view their assigned bus
+- **Parent Users**: Can only view their assigned child's bus
+- **Permission Checking**: `canViewBus()` and `shouldShowNotification()` methods
+- **Dynamic Filtering**: Automatic filtering in fleet list rendering
 
 **Section sources**
-- [script.js:780-828](file://script.js#L780-L828)
+- [script.js:77-95](file://script.js#L77-L95)
+- [script.js:511-569](file://script.js#L511-L569)
+
+### Enhanced Data Validation and Error Handling
+The system implements comprehensive validation:
+
+- **Coordinate Validation**: NaN checks, range validation, and type checking
+- **Route Calculation Validation**: API response validation and error handling
+- **State Consistency**: Atomic updates with localStorage persistence
+- **Fallback Mechanisms**: Graceful degradation with default values
+- **User Feedback**: Toast notifications for success/error states
+
+**Section sources**
+- [script.js:920-925](file://script.js#L920-L925)
+- [script.js:1010-1029](file://script.js#L1010-L1029)
+- [script.js:1192-1195](file://script.js#L1192-L1195)
+
+### Real-time Notification System
+The system tracks journey state with automated notifications:
+
+- **Journey Events**: Bus started, approaching stops, reached stops, smart arrival alerts
+- **State Persistence**: Journey state stored separately from fleet data
+- **Notification Filtering**: Role-based notification visibility
+- **Simulation Mode**: Step-by-step journey simulation for testing
+
+**Section sources**
+- [script.js:1813-1950](file://script.js#L1813-L1950)
+- [script.js:1952-1981](file://script.js#L1952-L1981)
+
+### Dual Persistence Model
+The system uses separate localStorage keys for different data types:
+
+- **fleet_data**: Complete fleet information with coordinates, route details, and ETAs
+- **journey_state**: Real-time journey tracking with status, stops, and timing
+- **Atomic Operations**: Separate update methods for each data type
+- **Cross-tab Sync**: Independent synchronization for each data type
+
+**Section sources**
+- [script.js:97-136](file://script.js#L97-L136)
+- [script.js:266-294](file://script.js#L266-L294)
 
 ## Dependency Analysis
 - script.js depends on:
-  - localStorage for fleet data persistence.
-  - sessionStorage/localStorage for session and role state.
-  - TomTom Maps SDK for geocoding and routing.
-  - index.html for DOM elements and UI structure.
-- style.css provides UI styling for the dashboard and modals.
+  - localStorage for dual persistence (fleet_data and journey_state)
+  - sessionStorage/localStorage for session and role state
+  - TomTom Maps SDK for geocoding and routing
+  - index.html for DOM elements and UI structure
+  - Real-time notification system for journey tracking
+- style.css provides UI styling for the dashboard and modals
+- Cross-tab synchronization relies on browser storage events
 
 ```mermaid
 graph LR
-Script["script.js"] --> LS["localStorage"]
-Script --> MapSDK["TomTom Maps SDK"]
-Script --> HTML["index.html"]
-Script --> CSS["style.css"]
-Admin["admin.html"] --> Script
-Driver["driver.html"] --> Script
+AppState["AppState Object"] --> LS["localStorage<br/>fleet_data & journey_state"]
+AppState --> MapSDK["TomTom Maps SDK"]
+AppState --> HTML["index.html"]
+AppState --> Notifications["Real-time Notifications"]
+Admin["admin.html"] --> AppState
+Driver["driver.html"] --> AppState
+CrossTab["Cross-tab Sync"] --> StorageEvents["localStorage Events"]
+StorageEvents --> AppState
 ```
 
 **Diagram sources**
-- [script.js:1-938](file://script.js#L1-L938)
-- [index.html:1-141](file://index.html#L1-L141)
-- [style.css:1-200](file://style.css#L1-L200)
+- [script.js:45-136](file://script.js#L45-L136)
+- [script.js:266-294](file://script.js#L266-L294)
+- [index.html:1-238](file://index.html#L1-L238)
+- [style.css:1-2440](file://style.css#L1-L2440)
 - [admin.html:1-34](file://admin.html#L1-L34)
 - [driver.html:1-732](file://driver.html#L1-L732)
 
 **Section sources**
-- [script.js:1-938](file://script.js#L1-L938)
-- [index.html:1-141](file://index.html#L1-L141)
-- [style.css:1-200](file://style.css#L1-L200)
+- [script.js:45-136](file://script.js#L45-L136)
+- [script.js:266-294](file://script.js#L266-L294)
+- [index.html:1-238](file://index.html#L1-L238)
+- [style.css:1-2440](file://style.css#L1-L2440)
 
 ## Performance Considerations
-- Parsing and writing JSON to localStorage on every update is lightweight but occurs frequently. Consider debouncing heavy writes if the dataset grows.
-- 5-second polling is reasonable for a small fleet; for larger deployments, consider event-driven updates or server-side push.
-- Route calculations are asynchronous and guarded by cooldowns to avoid redundant calls.
-
-[No sources needed since this section provides general guidance]
+- **Centralized State**: Single source of truth reduces data inconsistency and improves performance
+- **Cross-tab Optimization**: Event-driven updates minimize unnecessary UI refreshes
+- **Dual Persistence**: Separate localStorage keys reduce write contention and improve atomicity
+- **Validation Efficiency**: Early validation prevents expensive API calls and UI updates
+- **Memory Management**: Proper cleanup of route layers and markers prevents memory leaks
 
 ## Troubleshooting Guide
 Common issues and resolutions:
-- Missing “fleet_data”:
-  - Cause: First-run scenario or cleared storage.
-  - Resolution: The initialization routine creates default entries automatically on page load.
-- Invalid or missing bus fields:
-  - Cause: Partial updates or failed route calculations.
-  - Resolution: UI falls back to placeholders (“--”) for missing values; re-run search or route calculation.
-- Route calculation errors:
-  - Cause: Bad coordinates or network issues.
-  - Resolution: Toast messages guide corrective actions; retry after verifying locations.
-- Conflicting updates:
-  - Cause: Rapid user actions without cooldown.
-  - Resolution: Wait for the 3-second cooldown; the UI indicates paused sync with a status indicator.
-- Reset not reflected:
-  - Cause: Reset in progress or cooldown active.
-  - Resolution: Allow reset to finish; sync resumes automatically.
+- **AppState Not Initialized**:
+  - Cause: Missing AppState.init() call
+  - Resolution: Ensure AppState.init() is called during login process
+- **Cross-tab Updates Not Working**:
+  - Cause: Storage event listener not firing
+  - Resolution: Check browser support for storage events and localStorage availability
+- **Role-based Filtering Issues**:
+  - Cause: Incorrect user assignment or session data
+  - Resolution: Verify user credentials and session storage values
+- **Journey State Synchronization**:
+  - Cause: Separate localStorage keys not updating consistently
+  - Resolution: Use AppState.updateJourneyState() for atomic updates
+- **Notification Visibility Problems**:
+  - Cause: Role-based notification filtering blocking legitimate notifications
+  - Resolution: Verify user role and assigned bus configuration
 
 **Section sources**
-- [script.js:57-67](file://script.js#L57-L67)
-- [script.js:580-623](file://script.js#L580-L623)
-- [script.js:452-570](file://script.js#L452-L570)
-- [script.js:742-770](file://script.js#L742-L770)
+- [script.js:334-343](file://script.js#L334-L343)
+- [script.js:266-294](file://script.js#L266-L294)
+- [script.js:1825-1829](file://script.js#L1825-L1829)
 
 ## Conclusion
-The system uses a simple yet effective localStorage-based singleton to manage fleet data, with careful synchronization and user-interaction guards to prevent conflicts. It provides a clear data model, robust fallbacks, and a straightforward upgrade path to server-backed storage for production-scale deployments.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The system now provides a robust, scalable foundation for fleet data management with centralized state control, cross-tab synchronization, comprehensive role-based access, and real-time journey tracking. The dual persistence model ensures data integrity while the centralized AppState object provides a clear, maintainable architecture for future enhancements.
 
 ## Appendices
 
-### Fleet Data Model Reference
-- Key: “fleet_data”
-- Per-bus fields:
-  - active: Boolean
-  - lat/lng: Number
-  - from: String
-  - dLat/dLng: Number
-  - to: String
-  - eta: Number
+### AppState Object API Reference
+- **init()**: Initialize state from localStorage/sessionStorage
+- **updateFleetData(busId, updates)**: Update fleet data atomically
+- **updateJourneyState(busId, updates)**: Update journey state atomically
+- **sync()**: Refresh state from localStorage
+- **canViewBus(busId)**: Check role-based access
+- **shouldShowNotification(busId)**: Filter notifications by role
 
 **Section sources**
-- [script.js:57-67](file://script.js#L57-L67)
-- [script.js:251-264](file://script.js#L251-L264)
-- [script.js:328-341](file://script.js#L328-L341)
-- [script.js:476-482](file://script.js#L476-L482)
+- [script.js:54-136](file://script.js#L54-L136)
+- [script.js:97-136](file://script.js#L97-L136)
+
+### Data Models
+- **fleet_data**: Complete fleet information with coordinates, route details, and ETAs
+- **journey_state**: Real-time journey tracking with status, stops, and timing
+- **AppState Structure**: Centralized state management with role-based filtering
+
+**Section sources**
+- [script.js:51-61](file://script.js#L51-L61)
+- [script.js:254-271](file://script.js#L254-L271)
 
 ### Scalability and Migration Paths
-- Current limitations:
-  - Single-tab, client-only persistence; no cross-tab or server synchronization.
-  - No schema migrations or versioning.
-- Recommended migration steps:
-  - Introduce a lightweight backend or serverless function to accept and serve fleet updates.
-  - Replace localStorage writes with API calls; keep localStorage as cache for offline UX.
-  - Add schema versioning and migration routines to handle evolving field sets.
-  - Implement server-sent events or WebSocket for near-real-time updates.
-  - Add conflict resolution (e.g., timestamps or optimistic concurrency) for multi-user scenarios.
-
-[No sources needed since this section provides general guidance]
+- **Current Architecture Benefits**:
+  - Centralized state management with clear separation of concerns
+  - Cross-tab synchronization for multi-session environments
+  - Role-based access control for security
+  - Real-time notification system for user engagement
+- **Future Enhancement Opportunities**:
+  - Server-side state synchronization for distributed environments
+  - WebSocket integration for real-time updates beyond browser tabs
+  - Database migration with localStorage as cache layer
+  - Advanced conflict resolution for multi-user scenarios
+  - Schema versioning and migration system
