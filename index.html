@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>BusTrack MB Pro | Fleet Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css"/>
@@ -62,6 +65,10 @@
         <nav class="pro-navbar">
             <div class="pro-brand">🚍 BusTrack Pro <span id="role-label" class="badge-v3"></span></div>
             <div class="nav-btn-group">
+                <div id="sync-status" class="sync-status-indicator" style="display:none;">
+                    <span class="sync-dot"></span>
+                    <span class="sync-text">Sync Paused</span>
+                </div>
                 <button onclick="switchRole()" class="nav-btn-v3">🔄 Switch</button>
                 <button onclick="logout()" class="nav-btn-v3 nav-btn-red">Logout</button>
             </div>
@@ -103,8 +110,14 @@
 
                 <div id="driver-portal" class="sidebar-card-v3" style="display:none;">
                     <p class="sidebar-tag">Trip Configuration</p>
-                    <input type="text" id="search-src" class="side-input-v3" placeholder="Current Location" onkeyup="if(event.key==='Enter') searchAndMove('current')">
-                    <input type="text" id="search-dest" class="side-input-v3" placeholder="School/Station Destination" onkeyup="if(event.key==='Enter') searchAndMove('destination')">
+                    <input type="text" id="search-src" class="side-input-v3" placeholder="Current Location" autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('current')">
+                    <input type="text" id="search-dest" class="side-input-v3" placeholder="School/Station Destination" autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('destination')">
+                    
+                    <!-- GPS Location Button -->
+                    <button class="btn-gps-location" onclick="getUserLocation()" title="Use My Current Location">
+                        <span class="gps-icon">📍</span>
+                        <span class="gps-text">Use My Location</span>
+                    </button>
                     
                     <div id="driver-eta-box" class="eta-pill-v3" style="display:none;">
                         Bus <span id="d-bus-id"></span>: <span id="d-eta-text">--</span> mins

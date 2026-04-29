@@ -4,7 +4,37 @@ let activeBusID = "bus01";
 let startCoords = null;
 let endCoords = null;
 
-// --- HARDCODED USER CREDENTIALS (Client-side only) ---
+// State management flags to prevent unwanted re-renders
+let isUserInteracting = false;
+let isResetting = false;
+let lastUserActionTime = 0;
+const INTERACTION_COOLDOWN = 3000; // 3 seconds cooldown after user action
+
+// Show/hide sync status indicator
+function showSyncStatus() {
+    const syncStatus = document.getElementById('sync-status');
+    if (syncStatus) {
+        syncStatus.style.display = 'flex';
+    }
+}
+
+function hideSyncStatus() {
+    const syncStatus = document.getElementById('sync-status');
+    if (syncStatus) {
+        syncStatus.style.display = 'none';
+    }
+}
+
+// Update sync status based on interaction state
+function updateSyncStatus() {
+    if (isUserInteracting || isResetting) {
+        showSyncStatus();
+    } else {
+        hideSyncStatus();
+    }
+}
+
+// --- HARDCODED USER CREDENTIALriveS (Client-side only) ---
 const USERS = {
     'admin': { password: 'schooladmin789', role: 'admin', busId: null },
     // Student accounts - each assigned to a specific bus
@@ -196,8 +226,15 @@ const KNOWN_LOCATIONS = {
 };
 
 function searchAndMove(type) {
+    // Set interaction flag when user is searching/changing location
+    isUserInteracting = true;
+    lastUserActionTime = Date.now();
+    
     const q = document.getElementById(type === 'current' ? 'search-src' : 'search-dest').value.trim();
-    if (!q) return;
+    if (!q) {
+        isUserInteracting = false;
+        return;
+    }
     
     // Check if it's a known location first
     const normalizedQuery = q.toLowerCase().trim();
@@ -230,6 +267,12 @@ function searchAndMove(type) {
         updateMarkersAndRoute();
         syncData();
         showToast(`Location set: ${knownLocation.name}`);
+        
+        // Release interaction flag after action completes
+        setTimeout(() => {
+            isUserInteracting = false;
+            lastUserActionTime = 0;
+        }, INTERACTION_COOLDOWN);
         return;
     }
 
@@ -301,12 +344,22 @@ function searchAndMove(type) {
             updateMarkersAndRoute();
             syncData();
             showToast(`Location found: ${placeName}`);
+            
+            // Release interaction flag after action completes
+            setTimeout(() => {
+                isUserInteracting = false;
+                lastUserActionTime = 0;
+            }, INTERACTION_COOLDOWN);
         } else {
             showToast("Location not found. Please try a different search.");
+            isUserInteracting = false;
+            lastUserActionTime = 0;
         }
     }).catch(err => {
         console.error('Search error:', err);
         showToast("Error searching location. Please try again.");
+        isUserInteracting = false;
+        lastUserActionTime = 0;
     });
 }
 
@@ -526,6 +579,23 @@ function removeRouteLayers() {
 
 // --- 3. DATA SYNC & UI ---
 function syncData() {
+    // Skip sync if user is currently interacting or resetting
+    const now = Date.now();
+    if (isResetting) {
+        console.log('Sync skipped: Reset in progress');
+        updateSyncStatus();
+        return;
+    }
+    
+    if (isUserInteracting && (now - lastUserActionTime) < INTERACTION_COOLDOWN) {
+        console.log('Sync skipped: User interaction cooldown active');
+        updateSyncStatus();
+        return;
+    }
+    
+    // Hide sync status when sync is active
+    hideSyncStatus();
+    
     const fleet = JSON.parse(localStorage.getItem("fleet_data"));
     const role = sessionStorage.getItem("active_role") || localStorage.getItem("saved_user_role");
     
@@ -567,6 +637,10 @@ function updateBusDisplayText() {
 
 // --- UTILS ---
 function changeBus(id) {
+    // Set interaction flag when switching buses
+    isUserInteracting = true;
+    lastUserActionTime = Date.now();
+    
     activeBusID = id;
     sessionStorage.setItem("active_bus", id);
     updateChipUI(id);
@@ -607,6 +681,12 @@ function changeBus(id) {
     
     syncData();
     showToast(`Selected Bus ${formatBusID(id)}`);
+    
+    // Release interaction flag after action completes
+    setTimeout(() => {
+        isUserInteracting = false;
+        lastUserActionTime = 0;
+    }, INTERACTION_COOLDOWN);
 }
 
 // Calculate unique ETA for a specific bus
@@ -661,6 +741,11 @@ let pendingResetBusId = null;
 
 // Show custom confirmation modal
 function showResetConfirm(busId) {
+    // Set interaction flag to prevent auto-refresh during reset
+    isUserInteracting = true;
+    isResetting = true;
+    lastUserActionTime = Date.now();
+    
     pendingResetBusId = busId;
     const modal = document.getElementById('confirm-modal');
     const message = document.getElementById('modal-message');
@@ -675,6 +760,13 @@ function closeConfirmModal() {
     const modal = document.getElementById('confirm-modal');
     modal.classList.remove('active');
     pendingResetBusId = null;
+    
+    // Reset interaction flags after a short delay
+    setTimeout(() => {
+        isResetting = false;
+        isUserInteracting = false;
+        lastUserActionTime = 0;
+    }, 500);
 }
 
 // Execute reset after confirmation
@@ -687,6 +779,10 @@ function executeReset() {
 
 // Perform the actual reset
 function performReset(busId) {
+    // Set resetting flag
+    isResetting = true;
+    lastUserActionTime = Date.now();
+    
     // Clear fleet data for this bus
     let fleet = JSON.parse(localStorage.getItem("fleet_data")) || {};
     fleet[busId] = { 
@@ -722,6 +818,13 @@ function performReset(busId) {
     
     syncData();
     showToast(`Bus ${formatBusID(busId)} reset successfully`);
+    
+    // Reset flags after completion
+    setTimeout(() => {
+        isResetting = false;
+        isUserInteracting = false;
+        lastUserActionTime = 0;
+    }, 1000);
 }
 
 // Legacy reset function (redirects to modal)
@@ -781,8 +884,150 @@ function drawRoute(id) {
     });
 }
 
-function initMap() { if(map) map.remove(); map = tt.map({ key: TOMTOM_KEY, container: 'map', center: [72.8557, 19.2813], zoom: 14 }); map.on('load', () => { map.resize(); syncData(); }); setInterval(syncData, 5000); }
-function publishTrip() { let f = JSON.parse(localStorage.getItem("fleet_data")); f[activeBusID].active = true; localStorage.setItem("fleet_data", JSON.stringify(f)); showToast(`Bus ${activeBusID.toUpperCase()} is LIVE!`); }
+function initMap() { 
+    if(map) map.remove(); 
+    map = tt.map({ 
+        key: TOMTOM_KEY, 
+        container: 'map', 
+        center: [72.8557, 19.2813], 
+        zoom: 14 
+    }); 
+    
+    map.on('load', () => { 
+        map.resize(); 
+        syncData(); 
+        
+        // Fix map rendering on mobile after load
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 500);
+    }); 
+    
+    // Handle window resize for mobile
+    window.addEventListener('resize', () => {
+        if (map) {
+            map.invalidateSize();
+        }
+    });
+    
+    // Handle orientation change on mobile
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 300);
+    });
+    
+    setInterval(syncData, 5000); 
+}
+
+// GPS Location function for mobile users
+function getUserLocation() {
+    // Set interaction flag
+    isUserInteracting = true;
+    lastUserActionTime = Date.now();
+    updateSyncStatus();
+    
+    if (navigator.geolocation) {
+        showToast("Getting your location...");
+        
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                
+                console.log("User location:", lat, lng);
+                
+                // Update startCoords with GPS location
+                startCoords = { lat: lat, lng: lng, name: 'My Current Location' };
+                
+                // Update map view
+                if (map) {
+                    map.setView([lng, lat], 16);
+                }
+                
+                // Update fleet data
+                let fleet = JSON.parse(localStorage.getItem("fleet_data")) || {};
+                if(!fleet[activeBusID]) fleet[activeBusID] = { active: false };
+                fleet[activeBusID].lat = lat;
+                fleet[activeBusID].lng = lng;
+                fleet[activeBusID].from = 'My Current Location';
+                localStorage.setItem("fleet_data", JSON.stringify(fleet));
+                
+                // Update input field
+                const srcInput = document.getElementById('search-src');
+                if (srcInput) {
+                    srcInput.value = 'My Current Location';
+                }
+                
+                // Update markers and route
+                updateMarkersAndRoute();
+                syncData();
+                
+                showToast("Location detected successfully!");
+                
+                // Release interaction flag
+                setTimeout(() => {
+                    isUserInteracting = false;
+                    lastUserActionTime = 0;
+                    hideSyncStatus();
+                }, INTERACTION_COOLDOWN);
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                
+                let errorMsg = "Unable to get your location. ";
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg += "Please enable location permissions in your browser settings.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg += "Location information is unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg += "Location request timed out. Please try again.";
+                        break;
+                    default:
+                        errorMsg += "An unknown error occurred.";
+                }
+                
+                showToast(errorMsg);
+                
+                // Release interaction flag
+                isUserInteracting = false;
+                lastUserActionTime = 0;
+                hideSyncStatus();
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        showToast("Geolocation is not supported by your browser");
+        isUserInteracting = false;
+        lastUserActionTime = 0;
+        hideSyncStatus();
+    }
+}
+function publishTrip() { 
+    // Set interaction flag when publishing
+    isUserInteracting = true;
+    lastUserActionTime = Date.now();
+    
+    let f = JSON.parse(localStorage.getItem("fleet_data")); 
+    f[activeBusID].active = true; 
+    localStorage.setItem("fleet_data", JSON.stringify(f)); 
+    showToast(`Bus ${activeBusID.toUpperCase()} is LIVE!`); 
+    
+    // Release interaction flag after action completes
+    setTimeout(() => {
+        isUserInteracting = false;
+        lastUserActionTime = 0;
+    }, INTERACTION_COOLDOWN);
+}
 function logout() { 
     localStorage.removeItem('saved_user_role');
     localStorage.removeItem('temp_role');
