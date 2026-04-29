@@ -63,11 +63,42 @@
 
     <div id="app-container" style="display:none;">
         <nav class="pro-navbar">
-            <div class="pro-brand">🚍 BusTrack Pro <span id="role-label" class="badge-v3"></span></div>
+            <div class="pro-brand">
+                <div class="brand-icon">🚌</div>
+                <div>
+                    <div class="brand-name">BusTrack Pro</div>
+                    <div class="brand-subtitle">Fleet Command Center</div>
+                </div>
+                <span id="role-label" class="badge-v3"></span>
+            </div>
+            <div class="nav-stats">
+                <div class="stat-pill">
+                    <span class="stat-value">6</span>
+                    <span class="stat-label">Total Buses</span>
+                </div>
+                <div class="stat-pill active">
+                    <span class="stat-value" id="active-buses-count">0</span>
+                    <span class="stat-label">Active</span>
+                </div>
+            </div>
             <div class="nav-btn-group">
+<<<<<<< HEAD
                 <div id="sync-status" class="sync-status-indicator" style="display:none;">
                     <span class="sync-dot"></span>
                     <span class="sync-text">Sync Paused</span>
+=======
+                <div class="notification-wrapper">
+                    <button class="nav-btn-v3" onclick="toggleNotifications()">🔔 <span class="badge" id="notif-badge">3</span></button>
+                    <div id="notification-panel" class="notification-panel">
+                        <div class="notif-header">
+                            <h4>Notifications</h4>
+                            <button onclick="clearNotifications()" class="clear-btn">Clear All</button>
+                        </div>
+                        <div class="notif-list" id="notif-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+>>>>>>> b4cec91c3737667a7ba67973a7437e4e345308bb
                 </div>
                 <button onclick="switchRole()" class="nav-btn-v3">🔄 Switch</button>
                 <button onclick="logout()" class="nav-btn-v3 nav-btn-red">Logout</button>
@@ -109,6 +140,7 @@
                 <hr class="sidebar-hr">
 
                 <div id="driver-portal" class="sidebar-card-v3" style="display:none;">
+<<<<<<< HEAD
                     <p class="sidebar-tag">Trip Configuration</p>
                     <input type="text" id="search-src" class="side-input-v3" placeholder="Current Location" autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('current')">
                     <input type="text" id="search-dest" class="side-input-v3" placeholder="School/Station Destination" autocomplete="off" onkeyup="if(event.key==='Enter') searchAndMove('destination')">
@@ -121,28 +153,106 @@
                     
                     <div id="driver-eta-box" class="eta-pill-v3" style="display:none;">
                         Bus <span id="d-bus-id"></span>: <span id="d-eta-text">--</span> mins
+=======
+                    <div class="card-header">
+                        <p class="sidebar-tag">Trip Configuration</p>
+                        <div class="status-indicator live">● LIVE</div>
+>>>>>>> b4cec91c3737667a7ba67973a7437e4e345308bb
                     </div>
-                    <button class="btn-publish-v3" onclick="publishTrip()">🚀 PUBLISH TRACKING</button>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Current Location</label>
+                        <input type="text" id="search-src" class="side-input-v3" placeholder="Search location..." onkeyup="if(event.key==='Enter') searchAndMove('current')">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Destination</label>
+                        <input type="text" id="search-dest" class="side-input-v3" placeholder="Search destination..." onkeyup="if(event.key==='Enter') searchAndMove('destination')">
+                    </div>
+                    
+                    <div id="driver-eta-box" class="eta-hero-card" style="display:none;">
+                        <div class="eta-label">Estimated Arrival</div>
+                        <div class="eta-value">
+                            <span id="d-eta-text">--</span>
+                            <span class="eta-unit">mins</span>
+                        </div>
+                        <div class="eta-bus-id">Bus <span id="d-bus-id"></span></div>
+                    </div>
+                    
+                    <button class="btn-publish-v3 btn-primary-gradient" onclick="publishTrip()">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">PUBLISH TRACKING</span>
+                    </button>
                 </div>
 
                 <div id="monitor-portal" style="display:none;">
                     <div class="glass-monitor-card">
-                        <div id="m-bus-id" class="m-title">VEHICLE: BUS 01</div>
-                        <div class="m-details">
-                            <p id="m-from">From: --</p>
-                            <p id="m-to">To: --</p>
+                        <div class="monitor-header">
+                            <div class="monitor-title">
+                                <span class="monitor-icon">🚌</span>
+                                <div>
+                                    <div id="m-bus-id" class="m-title">VEHICLE: BUS 01</div>
+                                    <div class="monitor-subtitle">Live Tracking Active</div>
+                                </div>
+                            </div>
+                            <div class="status-badge live">● LIVE</div>
                         </div>
-                        <div class="m-eta-hero"><span id="m-eta">--</span> <small>mins</small></div>
-                        <div class="pro-progress-bar">
-                            <div id="m-progress" class="pro-progress-fill" style="width: 0%"></div>
-                            <span id="m-bus-icon" class="pro-bus-icon">🚌</span>
+                        
+                        <div class="route-info">
+                            <div class="route-point from">
+                                <div class="point-marker blue"></div>
+                                <div class="point-details">
+                                    <div class="point-label">From</div>
+                                    <div id="m-from" class="point-value">--</div>
+                                </div>
+                            </div>
+                            <div class="route-line"></div>
+                            <div class="route-point to">
+                                <div class="point-marker red"></div>
+                                <div class="point-details">
+                                    <div class="point-label">To</div>
+                                    <div id="m-to" class="point-value">--</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="eta-section">
+                            <div class="eta-display">
+                                <span id="m-eta">--</span>
+                                <small>minutes remaining</small>
+                            </div>
+                            <div class="eta-progress">
+                                <div class="progress-bar">
+                                    <div id="m-progress" class="progress-fill" style="width: 0%"></div>
+                                    <span id="m-bus-icon" class="bus-icon-animated">🚌</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </aside>
 
             <main class="pro-map-view">
+                <div class="map-overlay-controls">
+                    <button class="map-control-btn" onclick="mapZoomIn()" title="Zoom In">+</button>
+                    <button class="map-control-btn" onclick="mapZoomOut()" title="Zoom Out">-</button>
+                    <button class="map-control-btn" onclick="mapFitAll()" title="Fit Route">⊡</button>
+                </div>
                 <div id="map"></div>
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot blue"></div>
+                        <span>Start Point</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot red"></div>
+                        <span>Destination</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line"></div>
+                        <span>Route Path</span>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
